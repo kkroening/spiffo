@@ -9,7 +9,7 @@ var WIDTH = window.innerWidth,
 
 var a1 = 24;
 var a2 = 8;
-var c1 = 1;
+var c1 = 0.6;
 var c2 = 1;
 //var c1 = 0.15;
 //var c2 = 0.06;
@@ -17,12 +17,12 @@ var w1 = 1;
 var w2 = -2.1;
 var p1 = 0;
 var p2 = 0;
-var nmax1 = 10;
-var nmax2 = 2000;
+var max_cycles1 = 1;
+var max_cycles2 = 2;
 
 var samples_per_1hz_cycle = 60;
 
-var k = nmax1;
+var cycles = max_cycles1;
 var geometrySpline;
 var splineObject;
 var cubeObject;
@@ -36,22 +36,24 @@ animate();
 function updateSpline(deltaTime) {
     geometrySpline = new THREE.Geometry();
 
-    for ( var i = 0; i < k; i++) {
-	var theta = i * 360 / samples_per_1hz_cycle;
-	var x = (a1 * Math.pow(c1, i) * Math.cos(theta*w1 + p1)) + (a2 * Math.pow(c2, i) * Math.cos(theta*w2 + p2));
-	var y = (a1 * Math.pow(c1, i) * Math.sin(theta*w1 + p1)) + (a2 * Math.pow(c2, i) * Math.sin(theta*w2 + p2));
-	geometrySpline.vertices[i] = new THREE.Vector3(x, y, 0);
+    for ( var n = 0; n < cycles * samples_per_1hz_cycle; n++) {
+	var i = n / samples_per_1hz_cycle;
+        var x = (a1 * Math.pow(c1, i) * Math.cos(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.cos(Math.PI*2*(i*w2 + p2)));
+        var y = (a1 * Math.pow(c1, i) * Math.sin(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.sin(Math.PI*2*(i*w2 + p2)));
+	//var x = 10*Math.cos(Math.PI*2*i);
+	//var y = 10*Math.sin(Math.PI*2*i);
+        geometrySpline.vertices[n] = new THREE.Vector3(x, y, 0);
     }
 
-    k += 20;
-    if (k > nmax2) {
-	k = nmax1;
+    cycles += deltaTime;
+    if (cycles > max_cycles2) {
+        cycles = max_cycles1;
     }
 
     geometrySpline.computeLineDistances();
 
     if (splineObject != null) {
-	scene.remove(splineObject);
+        scene.remove(splineObject);
     }
 
     splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
@@ -105,42 +107,42 @@ function cube( size ) {
     var geometry = new THREE.Geometry();
 
     geometry.vertices.push(
-	new THREE.Vector3( -h, -h, -h ),
-	new THREE.Vector3( -h, h, -h ),
+        new THREE.Vector3( -h, -h, -h ),
+        new THREE.Vector3( -h, h, -h ),
 
-	new THREE.Vector3( -h, h, -h ),
-	new THREE.Vector3( h, h, -h ),
+        new THREE.Vector3( -h, h, -h ),
+        new THREE.Vector3( h, h, -h ),
 
-	new THREE.Vector3( h, h, -h ),
-	new THREE.Vector3( h, -h, -h ),
+        new THREE.Vector3( h, h, -h ),
+        new THREE.Vector3( h, -h, -h ),
 
-	new THREE.Vector3( h, -h, -h ),
-	new THREE.Vector3( -h, -h, -h ),
+        new THREE.Vector3( h, -h, -h ),
+        new THREE.Vector3( -h, -h, -h ),
 
 
-	new THREE.Vector3( -h, -h, h ),
-	new THREE.Vector3( -h, h, h ),
+        new THREE.Vector3( -h, -h, h ),
+        new THREE.Vector3( -h, h, h ),
 
-	new THREE.Vector3( -h, h, h ),
-	new THREE.Vector3( h, h, h ),
+        new THREE.Vector3( -h, h, h ),
+        new THREE.Vector3( h, h, h ),
 
-	new THREE.Vector3( h, h, h ),
-	new THREE.Vector3( h, -h, h ),
+        new THREE.Vector3( h, h, h ),
+        new THREE.Vector3( h, -h, h ),
 
-	new THREE.Vector3( h, -h, h ),
-	new THREE.Vector3( -h, -h, h ),
+        new THREE.Vector3( h, -h, h ),
+        new THREE.Vector3( -h, -h, h ),
 
-	new THREE.Vector3( -h, -h, -h ),
-	new THREE.Vector3( -h, -h, h ),
+        new THREE.Vector3( -h, -h, -h ),
+        new THREE.Vector3( -h, -h, h ),
 
-	new THREE.Vector3( -h, h, -h ),
-	new THREE.Vector3( -h, h, h ),
+        new THREE.Vector3( -h, h, -h ),
+        new THREE.Vector3( -h, h, h ),
 
-	new THREE.Vector3( h, h, -h ),
-	new THREE.Vector3( h, h, h ),
+        new THREE.Vector3( h, h, -h ),
+        new THREE.Vector3( h, h, h ),
 
-	new THREE.Vector3( h, -h, -h ),
-	new THREE.Vector3( h, -h, h )
+        new THREE.Vector3( h, -h, -h ),
+        new THREE.Vector3( h, -h, h )
      );
 
     return geometry;
