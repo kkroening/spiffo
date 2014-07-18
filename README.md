@@ -7,5 +7,14 @@ It draws a fractal spirograph of two exponentially decaying sinusoids in the com
 
 Live demo: http://kkroening.github.io/spiffo/
 
-Screenshot:
+## Screenshot:
 ![Screenshot](https://raw.githubusercontent.com/kkroening/spiffo/master/screenshot.png)
+
+## Building/running:
+Simply point your web browser to index.html.
+
+Alternatively, host the code with your favorite web server. For example, to use python's SimpleHTTPServer run the following and point your browser at localhost:8000:
+
+```
+python -m SimpleHTTPServer
+```
