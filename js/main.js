@@ -160,12 +160,12 @@ function animate() {
 function update() {
     var time = Date.now() * 0.001;
 
+    updateSpline();
+
     splineObject.rotation.x = 0.25 * time;
     splineObject.rotation.y = 0.25 * time;
     cubeObject.rotation.x = 0.25 * time;
     cubeObject.rotation.y = 0.25 * time;
-
-    updateSpline();
 }
 
 function render() {
