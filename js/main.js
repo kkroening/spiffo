@@ -27,9 +27,6 @@ var splineObject;
 
 var lastTime = Date.now();
 
-
-var recursion = 1;
-
 init();
 animate();
 
