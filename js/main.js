@@ -11,6 +11,8 @@ var k = 0;
 var points;
 var spline;
 var geometrySpline;
+var splineObject;
+var cubeObject;
 
 var subdivisions = 6;
 var recursion = 1;
@@ -19,6 +21,7 @@ init();
 animate();
 
 function updateSpline() {
+    geometrySpline = new THREE.Geometry();
 
     for ( var i = 0; i < points.length * subdivisions; i ++ ) {
 
@@ -30,13 +33,19 @@ function updateSpline() {
     }
 
     k++;
-    if (k > 100) {
+    if (k > 50) {
 	k = 0;
     }
 
     geometrySpline.computeLineDistances();
 
-    return geometrySpline;
+    if (splineObject != null) {
+	scene.remove(splineObject);
+    }
+
+    splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+
+    scene.add( splineObject );
 }
 
 function init() {
@@ -54,20 +63,13 @@ function init() {
 
     points = hilbert3D( new THREE.Vector3( 0,0,0 ), 25.0, recursion, 0, 1, 2, 3, 4, 5, 6, 7 );
     spline = new THREE.Spline( points );
-    geometrySpline = new THREE.Geometry();
     updateSpline();
 
     geometryCube.computeLineDistances();
 
-    var object = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+    cubeObject = new THREE.Line( geometryCube, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ), THREE.LinePieces );
 
-    objects.push( object );
-    scene.add( object );
-
-    var object = new THREE.Line( geometryCube, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ), THREE.LinePieces );
-
-    objects.push( object );
-    scene.add( object );
+    scene.add( cubeObject );
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setClearColor( 0x111111, 1 );
@@ -149,27 +151,24 @@ function animate() {
 
     requestAnimationFrame( animate );
 
-    updateSpline();
-
+    update();
     render();
     stats.update();
 
 }
 
-function render() {
-
+function update() {
     var time = Date.now() * 0.001;
 
-    for ( var i = 0; i < objects.length; i ++ ) {
+    splineObject.rotation.x = 0.25 * time;
+    splineObject.rotation.y = 0.25 * time;
+    cubeObject.rotation.x = 0.25 * time;
+    cubeObject.rotation.y = 0.25 * time;
 
-	var object = objects[ i ];
+    updateSpline();
+}
 
-	//object.rotation.x = 0.25 * time * ( i%2 == 1 ? 1 : -1);
-	object.rotation.x = 0.25 * time;
-	object.rotation.y = 0.25 * time;
-
-    }
-
+function render() {
     renderer.render( scene, camera );
 
 }
