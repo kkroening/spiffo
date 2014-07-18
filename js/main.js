@@ -23,8 +23,6 @@ var nmax2 = 500;
 var samples_per_1hz_cycle = 60;
 
 var k = 0;
-var points;
-var spline;
 var geometrySpline;
 var splineObject;
 var cubeObject;
@@ -74,8 +72,6 @@ function init() {
 
     var geometryCube = cube( 50 );
 
-    points = hilbert3D( new THREE.Vector3( 0,0,0 ), 25.0, recursion, 0, 1, 2, 3, 4, 5, 6, 7 );
-    spline = new THREE.Spline( points );
     updateSpline();
 
     geometryCube.computeLineDistances();
