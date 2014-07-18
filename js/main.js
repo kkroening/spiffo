@@ -7,20 +7,18 @@ var objects = [];
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
-var a1 = 24;
-var a2 = 8;
-var c1 = 0.6;
-var c2 = 1;
-//var c1 = 0.15;
-//var c2 = 0.06;
+var a1 = 200;
+var a2 = 120;
+var c1 = 0.15;
+var c2 = 0.06;
 var w1 = 1;
 var w2 = -2.1;
 var p1 = 0;
 var p2 = 0;
 var max_cycles1 = 1;
-var max_cycles2 = 2;
+var max_cycles2 = 8;
 
-var samples_per_1hz_cycle = 60;
+var samples_per_1hz_cycle = 120;
 
 var cycles = max_cycles1;
 var geometrySpline;
@@ -42,15 +40,25 @@ function updateSpline(deltaTime) {
 	var i = n / samples_per_1hz_cycle;
         var x = (a1 * Math.pow(c1, i) * Math.cos(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.cos(Math.PI*2*(i*w2 + p2)));
         var y = (a1 * Math.pow(c1, i) * Math.sin(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.sin(Math.PI*2*(i*w2 + p2)));
-	//var x = 10*Math.cos(Math.PI*2*i);
-	//var y = 10*Math.sin(Math.PI*2*i);
         geometrySpline.vertices[n] = new THREE.Vector3(x, y, 0);
     }
 
-    cycles += deltaTime;
+    cycles += 5*deltaTime;
     if (cycles > max_cycles2) {
         cycles = max_cycles1;
     }
+
+    w1 += 2*deltaTime;
+    if (w1 > 10) {
+	w1 = -10;
+    }
+
+    w2 -= 0.8*deltaTime;
+    if (w2 > 10) {
+	w2 = -10;
+    }
+
+    p1 += 0.05*deltaTime;
 
     geometrySpline.computeLineDistances();
 
