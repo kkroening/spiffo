@@ -46,12 +46,12 @@ function updateSpline(deltaTime) {
         cycles = max_cycles1;
     }
 
-    w1 += 0.8*deltaTime;
+    w1 += 0.5*deltaTime;
     if (w1 > 10) {
 	w1 = -10;
     }
 
-    w2 -= 0.69*deltaTime;
+    w2 -= 0.43*deltaTime;
     if (w2 > 10) {
 	w2 = -10;
     }
