@@ -11,8 +11,8 @@ var a1 = 500;
 var a2 = 220;
 var c1 = 0.11;
 var c2 = 0.06;
-var w1 = 1;
-var w2 = -2.1;
+var w1 = 3.0;
+var w2 = -4.25;
 var p1 = 0;
 var p2 = 0;
 var max_cycles1 = 3;
@@ -50,12 +50,12 @@ function updateSpline(deltaTime) {
         cycles = max_cycles1;
     }
 
-    w1 += 0.5*deltaTime;
+    w1 += 0.8*deltaTime;
     if (w1 > 10) {
 	w1 = -10;
     }
 
-    w2 -= 0.43*deltaTime;
+    w2 -= 0.69*deltaTime;
     if (w2 > 10) {
 	w2 = -10;
     }
