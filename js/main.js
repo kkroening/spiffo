@@ -11,8 +11,8 @@ var a1 = 500;
 var a2 = 220;
 var c1 = 0.11;
 var c2 = 0.06;
-var w1 = 1;
-var w2 = -2.1;
+var w1 = 3.0;
+var w2 = -4.25;
 var p1 = 0;
 var p2 = 0;
 var max_cycles1 = 3;
@@ -24,7 +24,6 @@ var k = 0;
 var cycles = max_cycles1;
 var geometrySpline;
 var splineObject;
-var cubeObject;
 
 var lastTime = Date.now();
 
@@ -50,12 +49,12 @@ function updateSpline(deltaTime) {
         cycles = max_cycles1;
     }
 
-    w1 += 0.5*deltaTime;
+    w1 += 0.8*deltaTime;
     if (w1 > 10) {
 	w1 = -10;
     }
 
-    w2 -= 0.43*deltaTime;
+    w2 -= 0.69*deltaTime;
     if (w2 > 10) {
 	w2 = -10;
     }
@@ -86,15 +85,7 @@ function init() {
 
     root = new THREE.Object3D();
 
-    var geometryCube = cube( 50 );
-
     updateSpline(0);
-
-    geometryCube.computeLineDistances();
-
-    cubeObject = new THREE.Line( geometryCube, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ), THREE.LinePieces );
-
-    //scene.add( cubeObject );
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setClearColor( 0x111111, 1 );
@@ -111,55 +102,6 @@ function init() {
     //
 
     window.addEventListener( 'resize', onWindowResize, false );
-
-}
-
-function cube( size ) {
-
-    var h = size * 0.5;
-
-    var geometry = new THREE.Geometry();
-
-    geometry.vertices.push(
-        new THREE.Vector3( -h, -h, -h ),
-        new THREE.Vector3( -h, h, -h ),
-
-        new THREE.Vector3( -h, h, -h ),
-        new THREE.Vector3( h, h, -h ),
-
-        new THREE.Vector3( h, h, -h ),
-        new THREE.Vector3( h, -h, -h ),
-
-        new THREE.Vector3( h, -h, -h ),
-        new THREE.Vector3( -h, -h, -h ),
-
-
-        new THREE.Vector3( -h, -h, h ),
-        new THREE.Vector3( -h, h, h ),
-
-        new THREE.Vector3( -h, h, h ),
-        new THREE.Vector3( h, h, h ),
-
-        new THREE.Vector3( h, h, h ),
-        new THREE.Vector3( h, -h, h ),
-
-        new THREE.Vector3( h, -h, h ),
-        new THREE.Vector3( -h, -h, h ),
-
-        new THREE.Vector3( -h, -h, -h ),
-        new THREE.Vector3( -h, -h, h ),
-
-        new THREE.Vector3( -h, h, -h ),
-        new THREE.Vector3( -h, h, h ),
-
-        new THREE.Vector3( h, h, -h ),
-        new THREE.Vector3( h, h, h ),
-
-        new THREE.Vector3( h, -h, -h ),
-        new THREE.Vector3( h, -h, h )
-     );
-
-    return geometry;
 
 }
 
@@ -193,8 +135,6 @@ function update() {
     
     splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/113);
     splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/100);
-    cubeObject.rotation.x = 0.0025 * nextTime;
-    cubeObject.rotation.y = 0.0025 * nextTime;
 }
 
 function render() {
