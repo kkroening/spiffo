@@ -8,4 +8,4 @@ It draws a fractal spirograph of two exponentially decaying sinusoids in the com
 Live demo: http://kkroening.github.io/spiffo/
 
 Screenshot:
-[screenshot]: https://raw.githubusercontent.com/kkroening/spiffo/master/screenshot.png "Screenshot"
+![Screenshot](https://raw.githubusercontent.com/kkroening/spiffo/master/screenshot.png)
