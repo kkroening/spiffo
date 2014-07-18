@@ -7,19 +7,20 @@ var objects = [];
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
-var a1 = 200;
-var a2 = 120;
-var c1 = 0.15;
+var a1 = 500;
+var a2 = 220;
+var c1 = 0.11;
 var c2 = 0.06;
 var w1 = 1;
 var w2 = -2.1;
 var p1 = 0;
 var p2 = 0;
-var max_cycles1 = 1;
-var max_cycles2 = 8;
+var max_cycles1 = 3;
+var max_cycles2 = 3;
 
-var samples_per_1hz_cycle = 120;
+var samples_per_1hz_cycle = 300;
 
+var k = 0;
 var cycles = max_cycles1;
 var geometrySpline;
 var splineObject;
@@ -40,7 +41,8 @@ function updateSpline(deltaTime) {
 	var i = n / samples_per_1hz_cycle;
         var x = (a1 * Math.pow(c1, i) * Math.cos(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.cos(Math.PI*2*(i*w2 + p2)));
         var y = (a1 * Math.pow(c1, i) * Math.sin(Math.PI*2*(i*w1 + p1))) + (a2 * Math.pow(c2, i) * Math.sin(Math.PI*2*(i*w2 + p2)));
-        geometrySpline.vertices[n] = new THREE.Vector3(x, y, 0);
+        var z = -20*i + 30;
+        geometrySpline.vertices[n] = new THREE.Vector3(x, y, z);
     }
 
     cycles += 5*deltaTime;
@@ -48,17 +50,19 @@ function updateSpline(deltaTime) {
         cycles = max_cycles1;
     }
 
-    w1 += 2*deltaTime;
+    w1 += 0.5*deltaTime + 0.2*Math.sin(Math.PI*2/100);
     if (w1 > 10) {
 	w1 = -10;
     }
 
-    w2 -= 0.8*deltaTime;
+    w2 -= 0.43*deltaTime;
     if (w2 > 10) {
 	w2 = -10;
     }
 
-    p1 += 0.05*deltaTime;
+    //p1 += 0.05*deltaTime + 0.2*math.sin(Math.PI*2*k * 0.1);
+    //p1 += 0.2*Math.sin(math.PI*2*k * 0.1);
+    p2 -= 0.0132*deltaTime;
 
     geometrySpline.computeLineDistances();
 
@@ -73,12 +77,12 @@ function updateSpline(deltaTime) {
 
 function init() {
 
-    camera = new THREE.PerspectiveCamera( 60, WIDTH / HEIGHT, 1, 200 );
+    camera = new THREE.PerspectiveCamera( 60, WIDTH / HEIGHT, 1, 2000 );
     camera.position.z = 150;
 
     scene = new THREE.Scene();
 
-    scene.fog = new THREE.Fog( 0x111111, 150, 200 );
+    //scene.fog = new THREE.Fog( 0x111111, 170, 200 );
 
     root = new THREE.Object3D();
 
@@ -185,12 +189,12 @@ function update() {
 
     updateSpline(deltaTime);
 
-    /*
-    splineObject.rotation.x = 0.25 * time;
-    splineObject.rotation.y = 0.25 * time;
-    cubeObject.rotation.x = 0.25 * time;
-    cubeObject.rotation.y = 0.25 * time;
-    */
+    k++;
+    
+    splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/113);
+    splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/100);
+    cubeObject.rotation.x = 0.0025 * nextTime;
+    cubeObject.rotation.y = 0.0025 * nextTime;
 }
 
 function render() {
