@@ -7,6 +7,21 @@ var objects = [];
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
+var a1 = 24;
+var a2 = 8;
+var c1 = 1;
+var c2 = 1;
+//var c1 = 0.15;
+//var c2 = 0.06;
+var w1 = 1;
+var w2 = -2.1;
+var p1 = 0;
+var p2 = 0;
+var nmax1 = 100;
+var nmax2 = 500;
+
+var samples_per_1hz_cycle = 60;
+
 var k = 0;
 var points;
 var spline;
@@ -14,10 +29,7 @@ var geometrySpline;
 var splineObject;
 var cubeObject;
 
-var a1 = 5;
-var nmax = 100;
 
-var subdivisions = 6;
 var recursion = 1;
 
 init();
@@ -27,12 +39,15 @@ function updateSpline() {
     geometrySpline = new THREE.Geometry();
 
     for ( var i = 0; i < k; i++) {
-	geometrySpline.vertices[i] = new THREE.Vector3(a1 * Math.cos(i / nmax) * Math.PI*2, a1 * Math.sin(i / nmax) * Math.PI*2, 0);
+	var theta = i * 360 / samples_per_1hz_cycle;
+	var x = (a1 * Math.pow(c1, i) * Math.cos(theta*w1 + p1)) + (a2 * Math.pow(c2, i) * Math.cos(theta*w2 + p2));
+	var y = (a1 * Math.pow(c1, i) * Math.sin(theta*w1 + p1)) + (a2 * Math.pow(c2, i) * Math.sin(theta*w2 + p2));
+	geometrySpline.vertices[i] = new THREE.Vector3(x, y, 0);
     }
 
     k++;
-    if (k > nmax) {
-	k = 0;
+    if (k > nmax2) {
+	k = nmax1;
     }
 
     geometrySpline.computeLineDistances();
@@ -160,10 +175,12 @@ function update() {
 
     updateSpline();
 
+    /*
     splineObject.rotation.x = 0.25 * time;
     splineObject.rotation.y = 0.25 * time;
     cubeObject.rotation.x = 0.25 * time;
     cubeObject.rotation.y = 0.25 * time;
+    */
 }
 
 function render() {
