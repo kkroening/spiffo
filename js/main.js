@@ -7,8 +7,37 @@ var objects = [];
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
+var k = 0;
+var points;
+var spline;
+var geometrySpline;
+
+var subdivisions = 6;
+var recursion = 1;
+
 init();
 animate();
+
+function updateSpline() {
+
+    for ( var i = 0; i < points.length * subdivisions; i ++ ) {
+
+	var index = i / ( points.length * subdivisions );
+	var position = spline.getPoint( index );
+
+	geometrySpline.vertices[ i ] = new THREE.Vector3( position.x + k, position.y, position.z );
+
+    }
+
+    k++;
+    if (k > 100) {
+	k = 0;
+    }
+
+    geometrySpline.computeLineDistances();
+
+    return geometrySpline;
+}
 
 function init() {
 
@@ -21,27 +50,14 @@ function init() {
 
     root = new THREE.Object3D();
 
-    var subdivisions = 6;
-    var recursion = 1;
-
-    var points = hilbert3D( new THREE.Vector3( 0,0,0 ), 25.0, recursion, 0, 1, 2, 3, 4, 5, 6, 7 );
-
-    var spline = new THREE.Spline( points );
-    var geometrySpline = new THREE.Geometry();
-
-    for ( var i = 0; i < points.length * subdivisions; i ++ ) {
-
-	var index = i / ( points.length * subdivisions );
-	var position = spline.getPoint( index );
-
-	geometrySpline.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
-
-    }
-
     var geometryCube = cube( 50 );
 
+    points = hilbert3D( new THREE.Vector3( 0,0,0 ), 25.0, recursion, 0, 1, 2, 3, 4, 5, 6, 7 );
+    spline = new THREE.Spline( points );
+    geometrySpline = new THREE.Geometry();
+    updateSpline();
+
     geometryCube.computeLineDistances();
-    geometrySpline.computeLineDistances();
 
     var object = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
 
@@ -132,6 +148,8 @@ function onWindowResize() {
 function animate() {
 
     requestAnimationFrame( animate );
+
+    updateSpline();
 
     render();
     stats.update();
