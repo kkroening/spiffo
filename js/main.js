@@ -9,8 +9,8 @@ var WIDTH = window.innerWidth,
 
 var a1 = 500;
 var a2 = 220;
-var c1 = 0.11;
-var c2 = 0.06;
+var c1 = 0.21;
+var c2 = 0.26;
 var w1 = 3.0;
 var w2 = -4.25;
 var p1 = 0;
