@@ -27,6 +27,8 @@ var geometrySpline;
 var splineObject;
 var cubeObject;
 
+var lastTime = Date.now();
+
 
 var recursion = 1;
 
@@ -169,7 +171,9 @@ function animate() {
 }
 
 function update() {
-    var deltaTime = Date.now() * 0.001;
+    var nextTime = Date.now();
+    var deltaTime = (nextTime - lastTime)*0.001;
+    lastTime = nextTime;
 
     updateSpline(deltaTime);
 
