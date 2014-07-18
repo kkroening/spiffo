@@ -14,6 +14,9 @@ var geometrySpline;
 var splineObject;
 var cubeObject;
 
+var a1 = 5;
+var nmax = 100;
+
 var subdivisions = 6;
 var recursion = 1;
 
@@ -23,17 +26,12 @@ animate();
 function updateSpline() {
     geometrySpline = new THREE.Geometry();
 
-    for ( var i = 0; i < points.length * subdivisions; i ++ ) {
-
-	var index = i / ( points.length * subdivisions );
-	var position = spline.getPoint( index );
-
-	geometrySpline.vertices[ i ] = new THREE.Vector3( position.x + k, position.y, position.z );
-
+    for ( var i = 0; i < k; i++) {
+	geometrySpline.vertices[i] = new THREE.Vector3(a1 * Math.cos(i / nmax) * Math.PI*2, a1 * Math.sin(i / nmax) * Math.PI*2, 0);
     }
 
     k++;
-    if (k > 50) {
+    if (k > nmax) {
 	k = 0;
     }
 
@@ -69,7 +67,7 @@ function init() {
 
     cubeObject = new THREE.Line( geometryCube, new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ), THREE.LinePieces );
 
-    scene.add( cubeObject );
+    //scene.add( cubeObject );
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setClearColor( 0x111111, 1 );
