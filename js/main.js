@@ -17,12 +17,12 @@ var w1 = 1;
 var w2 = -2.1;
 var p1 = 0;
 var p2 = 0;
-var nmax1 = 100;
-var nmax2 = 500;
+var nmax1 = 10;
+var nmax2 = 2000;
 
 var samples_per_1hz_cycle = 60;
 
-var k = 0;
+var k = nmax1;
 var geometrySpline;
 var splineObject;
 var cubeObject;
@@ -33,7 +33,7 @@ var recursion = 1;
 init();
 animate();
 
-function updateSpline() {
+function updateSpline(deltaTime) {
     geometrySpline = new THREE.Geometry();
 
     for ( var i = 0; i < k; i++) {
@@ -43,7 +43,7 @@ function updateSpline() {
 	geometrySpline.vertices[i] = new THREE.Vector3(x, y, 0);
     }
 
-    k++;
+    k += 20;
     if (k > nmax2) {
 	k = nmax1;
     }
@@ -72,7 +72,7 @@ function init() {
 
     var geometryCube = cube( 50 );
 
-    updateSpline();
+    updateSpline(0);
 
     geometryCube.computeLineDistances();
 
@@ -167,9 +167,9 @@ function animate() {
 }
 
 function update() {
-    var time = Date.now() * 0.001;
+    var deltaTime = Date.now() * 0.001;
 
-    updateSpline();
+    updateSpline(deltaTime);
 
     /*
     splineObject.rotation.x = 0.25 * time;
