@@ -50,7 +50,7 @@ function updateSpline(deltaTime) {
         cycles = max_cycles1;
     }
 
-    w1 += 0.5*deltaTime + 0.2*Math.sin(Math.PI*2/100);
+    w1 += 0.5*deltaTime;
     if (w1 > 10) {
 	w1 = -10;
     }
