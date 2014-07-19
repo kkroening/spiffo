@@ -24,21 +24,26 @@ var params = {
     //  - c1,c2 - decay. Values closer to 0 cause the sinusoid(s) to more quickly
     //    decay.
     //
-    c1: 0.21,
-    c2: 0.26,
+    c1: 0.31,
+    c2: 0.45,
 
     //
     //  - w1,w2 - frequency: higher absolute values cause the sinusoid(s) to vary
     //    more quickly; values can be positive or negative.
     //
-    w1: 3.0,
-    w2: -4.25,
+    w1: 2.0,
+    w2: -1.82,
 
     //
     //  - dw1,dw2 - rate of change for frequency parameters w1,w2.
     //
-    dw1: 0.5,
-    dw2: -0.43,
+    dw1: 0.15,
+    dw2: -0.082,
+
+    //
+    //  - max_freq - maximum frequency.
+    //
+    max_freq: 12,
 
     //
     //  - p1,p2 - phase.
@@ -49,8 +54,8 @@ var params = {
     //
     //  - dp1,dp2 - rate of change for phase parameters.
     //
-    dp1: 0.0,
-    dp2: 0.0132,
+    dp1: 1.88,
+    dp2: -0.68,
 
     //
     //  - depth - scale of z coordinates.
@@ -80,13 +85,17 @@ animate();
 //
 function updateParameters(deltaTime) {
     params.w1 += params.dw1*deltaTime;
-    if (params.w1 > 10) {
-	params.w1 = -10;
+    if (params.w1 > params.max_freq) {
+	params.w1 = -params.max_freq;
+    } else if (params.w1 < -params.max_freq) {
+	params.w1 = params.max_freq;
     }
 
     params.w2 -= params.dw2*deltaTime;
-    if (params.w2 > 10) {
-	params.w2 = -10;
+    if (params.w2 > params.max_freq) {
+	params.w2 = -params.max_freq;
+    } else if (params.w2 < -params.max_freq) {
+	params.w2 = params.max_freq;
     }
 
     params.p1 += params.dp1 * deltaTime;
@@ -152,12 +161,13 @@ function init() {
     var gui = new dat.GUI();
     gui.add(params, 'a1').min(0).max(1000);
     gui.add(params, 'a2').min(0).max(1000);
-    gui.add(params, 'c1').min(0).max(1);
-    gui.add(params, 'c2').min(0).max(1);
-    gui.add(params, 'w1').min(-10).max(10);
-    gui.add(params, 'w2').min(-10).max(10);
-    gui.add(params, 'dw1').min(-10).max(10);
-    gui.add(params, 'dw2').min(-10).max(10);
+    gui.add(params, 'c1').min(0.01).max(1);
+    gui.add(params, 'c2').min(0.01).max(1);
+    //gui.add(params, 'w1').min(-10).max(10);
+    //gui.add(params, 'w2').min(-10).max(10);
+    gui.add(params, 'dw1').min(-5).max(5);
+    gui.add(params, 'dw2').min(-5).max(5);
+    gui.add(params, 'max_freq').min(10).max(100);
     gui.add(params, 'p1').min(0).max(1);
     gui.add(params, 'p2').min(0).max(1);
     gui.add(params, 'dp1').min(-10).max(10);
@@ -195,8 +205,8 @@ function update() {
 
     k++;
     
-    splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/113);
-    splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/100);
+    splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/213);
+    splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/200);
 }
 
 function render() {
