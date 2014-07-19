@@ -31,14 +31,14 @@ var params = {
     //  - w1,w2 - frequency: higher absolute values cause the sinusoid(s) to vary
     //    more quickly; values can be positive or negative.
     //
-    w1: 2.0,
-    w2: -1.82,
+    w1: 2,
+    w2: -0.5,
 
     //
     //  - dw1,dw2 - rate of change for frequency parameters w1,w2.
     //
     dw1: 0.15,
-    dw2: -0.082,
+    dw2: 0.082,
 
     //
     //  - max_freq - maximum frequency.
@@ -54,7 +54,7 @@ var params = {
     //
     //  - dp1,dp2 - rate of change for phase parameters.
     //
-    dp1: 1.88,
+    dp1: 0.5,
     dp2: -0.68,
 
     //
@@ -91,7 +91,7 @@ function updateParameters(deltaTime) {
 	params.w1 = params.max_freq;
     }
 
-    params.w2 -= params.dw2*deltaTime;
+    params.w2 += params.dw2*deltaTime;
     if (params.w2 > params.max_freq) {
 	params.w2 = -params.max_freq;
     } else if (params.w2 < -params.max_freq) {
