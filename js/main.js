@@ -21,24 +21,24 @@ var params = {
     a2: 220,
 
     //
-    //  - c1,c2 - decay. Values closer to 0 cause the sinusoid(s) to more quickly
+    //  - c1,c2 - decay; values closer to 0 cause the sinusoid(s) to more quickly
     //    decay.
     //
-    c1: 0.31,
-    c2: 0.45,
+    c1: 0.11,
+    c2: 0.06,
 
     //
     //  - w1,w2 - frequency: higher absolute values cause the sinusoid(s) to vary
     //    more quickly; values can be positive or negative.
     //
-    w1: 2,
-    w2: -0.5,
+    w1: 3,
+    w2: -4.25,
 
     //
     //  - dw1,dw2 - rate of change for frequency parameters w1,w2.
     //
-    dw1: 0.15,
-    dw2: 0.082,
+    dw1: 0.8,
+    dw2: -0.069,
 
     //
     //  - max_freq - maximum frequency.
@@ -54,8 +54,8 @@ var params = {
     //
     //  - dp1,dp2 - rate of change for phase parameters.
     //
-    dp1: 0.5,
-    dp2: -0.68,
+    dp1: 0,
+    dp2: -0.0132,
 
     //
     //  - depth - scale of z coordinates.
