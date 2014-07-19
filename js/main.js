@@ -15,7 +15,7 @@ var lastTime = Date.now();
 
 
 var params = {
-    //  - a1,a2 - amplitude: Higher values equal bigger waves.
+    //  - a1,a2 - amplitude; higher values equal bigger waves.
     //
     a1: 500,
     a2: 220,
