@@ -3,7 +3,7 @@ Kral's Spiffy Spirograph
 
 This is a simple demo of signal visualization using Three.js.
 
-Spiffo draws a fractal spirograph of two exponentially decaying sinusoids with varying frequency and phase, interfering with one another in the complex plane. The result is a single continuous curve that exhibits fascinating visual patterns.
+Spiffo animates a fractal spirograph of two exponentially decaying sinusoids with varying frequency and phase, interfering with one another in the complex plane. The result is a single continuous curve that exhibits fascinating visual patterns.
 
 Live demo: http://kkroening.github.io/spiffo/
 
