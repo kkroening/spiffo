@@ -68,6 +68,11 @@ var params = {
     depth: 150,
 
     //
+    //  - speed - speed multiplier.
+    //
+    speed: 1.0,
+
+    //
     //  - cycles - number of revolutions (for example, a sinusoid with a frequency
     //    of 1 and 3 cycles would produce 1*3 circles)
     //
@@ -195,6 +200,7 @@ function init() {
     gui.add(params, 'dp3').min(-10).max(10);
     gui.add(params, 'depth').min(0).max(1000);
     gui.add(params, 'cycles').min(0).max(5);
+    gui.add(params, 'speed').min(-2).max(2);
     gui.add(params, 'resolution').min(10).max(2000);
 }
 
@@ -222,7 +228,7 @@ function update() {
     var deltaTime = (nextTime - lastTime)*0.001;
     lastTime = nextTime;
 
-    updateSpline(deltaTime);
+    updateSpline(deltaTime * params.speed);
 
     k++;
     
