@@ -19,6 +19,7 @@ var params = {
     //
     a1: 500,
     a2: 220,
+    a3: 160,
 
     //
     //  - c1,c2 - decay; values closer to 0 cause the sinusoid(s) to more quickly
@@ -26,6 +27,7 @@ var params = {
     //
     c1: 0.11,
     c2: 0.06,
+    c3: 0.12,
 
     //
     //  - w1,w2 - frequency: higher absolute values cause the sinusoid(s) to vary
@@ -33,12 +35,14 @@ var params = {
     //
     w1: 3,
     w2: -4.25,
+    w3: 1,
 
     //
     //  - dw1,dw2 - rate of change for frequency parameters w1,w2.
     //
     dw1: 0.8,
     dw2: -0.069,
+    dw3: -1,
 
     //
     //  - max_freq - maximum frequency.
@@ -50,12 +54,14 @@ var params = {
     //
     p1: 0.0,
     p2: 0.0,
+    p3: 0.0,
 
     //
     //  - dp1,dp2 - rate of change for phase parameters.
     //
     dp1: 0,
     dp2: -0.0132,
+    dp3: 0,
 
     //
     //  - depth - scale of z coordinates.
@@ -98,8 +104,16 @@ function updateParameters(deltaTime) {
 	params.w2 = params.max_freq;
     }
 
+    params.w3 += params.dw3*deltaTime;
+    if (params.w3 > params.max_freq) {
+	params.w3 = -params.max_freq;
+    } else if (params.w3 < -params.max_freq) {
+	params.w3 = params.max_freq;
+    }
+
     params.p1 += params.dp1 * deltaTime;
     params.p2 += params.dp2 * deltaTime;
+    params.p3 += params.dp3 * deltaTime;
 }
 
 function updateSpline(deltaTime) {
@@ -109,12 +123,15 @@ function updateSpline(deltaTime) {
 	var i = n / params.resolution;
         var pow1 = Math.pow(params.c1, i);
         var pow2 = Math.pow(params.c2, i);
+        var pow3 = Math.pow(params.c3, i);
         var x1 = params.a1 * pow1 * Math.cos(Math.PI*2*(i*params.w1 + params.p1));
         var x2 = params.a2 * pow2 * Math.cos(Math.PI*2*(i*params.w2 + params.p2));
+        var x3 = params.a3 * pow3 * Math.cos(Math.PI*2*(i*params.w3 + params.p3));
         var y1 = params.a1 * pow1 * Math.sin(Math.PI*2*(i*params.w1 + params.p1));
         var y2 = params.a2 * pow2 * Math.sin(Math.PI*2*(i*params.w2 + params.p2));
+        var y3 = params.a3 * pow3 * Math.sin(Math.PI*2*(i*params.w3 + params.p3));
         var z = -params.depth*i + 30;
-        geometrySpline.vertices[n] = new THREE.Vector3(x1+x2, y1+y2, z);
+        geometrySpline.vertices[n] = new THREE.Vector3(x1+x2+x3, y1+y2+y3, z);
     }
 
     geometrySpline.computeLineDistances();
@@ -161,17 +178,22 @@ function init() {
     var gui = new dat.GUI();
     gui.add(params, 'a1').min(0).max(1000);
     gui.add(params, 'a2').min(0).max(1000);
+    gui.add(params, 'a3').min(0).max(1000);
     gui.add(params, 'c1').min(0.01).max(1);
     gui.add(params, 'c2').min(0.01).max(1);
+    gui.add(params, 'c3').min(0.01).max(1);
     //gui.add(params, 'w1').min(-10).max(10);
     //gui.add(params, 'w2').min(-10).max(10);
     gui.add(params, 'dw1').min(-5).max(5);
     gui.add(params, 'dw2').min(-5).max(5);
+    gui.add(params, 'dw3').min(-5).max(5);
     gui.add(params, 'max_freq').min(10).max(100);
     gui.add(params, 'p1').min(0).max(1);
     gui.add(params, 'p2').min(0).max(1);
+    gui.add(params, 'p3').min(0).max(1);
     gui.add(params, 'dp1').min(-10).max(10);
     gui.add(params, 'dp2').min(-10).max(10);
+    gui.add(params, 'dp3').min(-10).max(10);
     gui.add(params, 'depth').min(0).max(1000);
     gui.add(params, 'cycles').min(0).max(5);
     gui.add(params, 'resolution').min(10).max(2000);
