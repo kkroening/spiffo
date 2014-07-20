@@ -19,7 +19,7 @@ var params = {
     //
     a1: 500,
     a2: 220,
-    a3: 160,
+    a3: 0,
 
     //
     //  - c1,c2 - decay; values closer to 0 cause the sinusoid(s) to more quickly
