@@ -8,7 +8,6 @@ var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
 
 var k = 0;
-var geometrySpline;
 var splineObject;
 
 var lastTime = Date.now();
@@ -117,7 +116,7 @@ function updateParameters(deltaTime) {
 }
 
 function updateSpline(deltaTime) {
-    geometrySpline = new THREE.Geometry();
+    var geometrySpline = new THREE.Geometry();
 
     for ( var n = 0; n < params.cycles * params.resolution; n++) {
 	var i = n / params.resolution;
