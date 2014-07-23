@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from drawille import Canvas, line
 import curses
 import math
