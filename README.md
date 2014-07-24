@@ -31,3 +31,6 @@ Alternatively, host the code with your favorite web server. For example, to use 
 ```
 python -m SimpleHTTPServer
 ```
+
+### See Also
+A terminal-based Python port of Spiffo can be found [here](https://github.com/kkroening/spiffo-drawille).
