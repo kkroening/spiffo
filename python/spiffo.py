@@ -32,8 +32,8 @@ dp1 = 0.0
 dp2 = -0.0132
 dp3 = 0.0
 depth = 150.0
-cycles = 3.0
-resolution = 300
+cycles = 2.0
+resolution = 600
 
 heightStr, widthStr = os.popen('stty size', 'r').read().split()
 width = (int(widthStr)-1)*2
@@ -51,11 +51,12 @@ def render(c):
 	y2 = a2 * pow2 * math.sin(math.pi*2*(i*w2 + p2))
 	x3 = a3 * pow3 * math.cos(math.pi*2*(i*w3 + p3))
 	y3 = a3 * pow3 * math.sin(math.pi*2*(i*w3 + p3))
-	x = 500*(x1 + x2 + x3)/width + width/2
-	y = 250*(y1 + y2 + y3)/height + height/2
-	if n != 0:
-	    for px,py in line(prevx, prevy, x, y):
-		c.set(px, py)
+	x = (x1 + x2 + x3)*width/500 + width/2
+	y = (y1 + y2 + y3)*height/500 + height/2
+	if not ((x < 0 or x > width) and (y < 0 or y > width) and (prevx < 0 or prevx > height) and (prevy < 0 or prevy > height)):
+	    if n != 0:
+		for px,py in line(prevx, prevy, x, y):
+		    c.set(px, py)
 	prevx = x
 	prevy = y
 
