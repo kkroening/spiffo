@@ -89,16 +89,20 @@ div.view {
 }
 
 .component {
+    display: inline-block;
     background-color: #cccccc;
     border-style: solid;
     border-width: 1px;
     border-color: black;
     border-radius: 3px;
+    margin: 10px;
 }
 
 .component-label {
     text-align: center;
     color: black;
+    float: left;
+    margin: 20px;
 }
 
 .input-port {

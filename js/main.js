@@ -295,6 +295,15 @@ var params = {
     showSignal: true
 };
 
+function GuiControl(name) {
+    Component.call(this, name);
+    this.out = new Port("out", numberEventType, true);
+    Component.prototype.addPort.call(this, this.out);
+}
+GuiControl.prototype = Object.create(Component.prototype);
+GuiControl.prototype.run = function(deltaTime) {
+}
+
 
 function Sinusoid(name) {
     Component.call(this, name);
@@ -326,6 +335,36 @@ Adder.prototype.setNumInputs = function(numInputs) {
 }
 Adder.prototype.run = function(deltaTime) {
 }
+
+function Multiplier(name, numInputs, eventType) {
+    Component.call(this, name);
+    this.eventType = eventType;
+    this.setNumInputs(numInputs);
+    this.out = new Port("out", eventType, true);
+    Component.prototype.addPort.call(this, this.out);
+}
+Multiplier.prototype.setNumInputs = function(numInputs) {
+    // FIXME: allow setNumPorts to be called post-init.
+    this.in = [];
+    for (var i = 0; i < numInputs; i++) {
+        this.in.push(new Port("in" + i, this.eventType, false));
+        Component.prototype.addPort.call(this, this.in[i]);
+    }
+}
+Multiplier.prototype.run = function(deltaTime) {
+}
+
+function Exponentiator(name, eventType) {
+    Component.call(this, name);
+    this.eventType = eventType;
+    this.in = new Port("in", eventType, false);
+    this.out = new Port("out", eventType, true);
+    Component.prototype.addPort.call(this, this.in);
+    Component.prototype.addPort.call(this, this.out);
+}
+Exponentiator.prototype.run = function(deltaTime) {
+}
+
 
 function Generator(name) {
     Component.call(this, name);
@@ -421,21 +460,71 @@ plotter.x = 400;
 plotter.y = 50;
 components.push(plotter);
 
-var adder = new Adder("adder", 3, new SequenceEventType(vector2EventType, 10));
+
+var control_a1 = new GuiControl("a1");
+var control_a2 = new GuiControl("a2");
+var control_a3 = new GuiControl("a3");
+components.push(control_a1);
+components.push(control_a2);
+components.push(control_a3);
+
+var control_c1 = new GuiControl("c1");
+var control_c2 = new GuiControl("c2");
+var control_c3 = new GuiControl("c3");
+components.push(control_c1);
+components.push(control_c2);
+components.push(control_c3);
+
+var control_p1 = new GuiControl("p1");
+var control_p2 = new GuiControl("p2");
+var control_p3 = new GuiControl("p3");
+components.push(control_p1);
+components.push(control_p2);
+components.push(control_p3);
+
+var multiplier1 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
+var multiplier2 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
+var multiplier3 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
+components.push(multiplier1);
+components.push(multiplier2);
+components.push(multiplier3);
+
+var adder = new Adder("add", 3, new SequenceEventType(vector2EventType, 10));
 components.push(adder);
 
 var sin1 = new Sinusoid("sin1");
-components.push(sin1);
-
 var sin2 = new Sinusoid("sin2");
-components.push(sin2);
-
 var sin3 = new Sinusoid("sin3");
+components.push(sin1);
+components.push(sin2);
 components.push(sin3);
 
-sin1.out.connect(adder.in[0]);
-sin2.out.connect(adder.in[1]);
-sin3.out.connect(adder.in[2]);
+var exp1 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
+var exp2 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
+var exp3 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
+components.push(exp1);
+components.push(exp2);
+components.push(exp3);
+
+control_a1.out.connect(multiplier1.in[0]);
+control_a2.out.connect(multiplier2.in[0]);
+control_a3.out.connect(multiplier3.in[0]);
+
+control_p1.out.connect(sin1.phase);
+control_p2.out.connect(sin2.phase);
+control_p3.out.connect(sin3.phase);
+
+exp1.out.connect(multiplier1.in[1])
+exp2.out.connect(multiplier2.in[1])
+exp3.out.connect(multiplier3.in[1])
+
+sin1.out.connect(multiplier1.in[2]);
+sin2.out.connect(multiplier2.in[2]);
+sin3.out.connect(multiplier3.in[2]);
+
+multiplier1.out.connect(adder.in[0]);
+multiplier2.out.connect(adder.in[1]);
+multiplier3.out.connect(adder.in[2]);
 
 generator.out.connect(plotter.in);
 
