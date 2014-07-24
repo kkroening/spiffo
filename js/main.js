@@ -9,6 +9,7 @@ var WIDTH = window.innerWidth,
 
 var k = 0;
 var splineObject;
+var signalObject;
 
 var lastTime = Date.now();
 
@@ -82,7 +83,9 @@ var params = {
     //  - resolution - samples per cycle: higher values correspond to smoother
     //    lines at the expense of CPU time.
     //
-    resolution: 300
+    resolution: 300,
+
+    showSignal: false
 };
 
 
@@ -121,9 +124,23 @@ function updateParameters(deltaTime) {
 }
 
 function updateSpline(deltaTime) {
-    var geometrySpline = new THREE.Geometry();
+    if (splineObject != null) {
+        scene.remove(splineObject);
+    }
+    if (signalObject != null) {
+        scene.remove(signalObject);
+    }
 
-    for ( var n = 0; n < params.cycles * params.resolution; n++) {
+    var geometrySpline = new THREE.Geometry();
+    var geometrySignal;
+    if (params.showSignal) {
+        geometrySignal = new THREE.Geometry();
+    }
+
+    var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
+    var signalScaleY = 1 / (params.cycles * params.resolution) * HEIGHT/6.5;
+
+    for (var n = 0; n < params.cycles * params.resolution; n++) {
 	var i = n / params.resolution;
         var pow1 = Math.pow(params.c1, i);
         var pow2 = Math.pow(params.c2, i);
@@ -136,17 +153,21 @@ function updateSpline(deltaTime) {
         var y3 = params.a3 * pow3 * Math.sin(Math.PI*2*(i*params.w3 + params.p3));
         var z = -params.depth*i + 30;
         geometrySpline.vertices[n] = new THREE.Vector3(x1+x2+x3, y1+y2+y3, z);
+
+        if (params.showSignal && (n % 2) == 0) {
+            geometrySignal.vertices[n/2] = new THREE.Vector3(-(x1+x2+x3)*signalScaleX - WIDTH/14, -(n-params.cycles*params.resolution*0.5)*signalScaleY, 0);
+        }
     }
 
     geometrySpline.computeLineDistances();
-
-    if (splineObject != null) {
-        scene.remove(splineObject);
-    }
-
     splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+    scene.add(splineObject);
 
-    scene.add( splineObject );
+    if (params.showSignal) {
+        geometrySignal.computeLineDistances();
+        signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+        scene.add(signalObject);
+    }
 
     updateParameters(deltaTime);
 }
@@ -202,14 +223,17 @@ function init() {
     gui.add(params, 'cycles').min(0).max(5);
     gui.add(params, 'speed').min(-2).max(2);
     gui.add(params, 'resolution').min(10).max(2000);
+    gui.add(params, 'showSignal');
 }
 
 function onWindowResize() {
+    WIDTH = window.innerWidth;
+    HEIGHT = window.innerHeight;
 
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = WIDTH / HEIGHT;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(WIDTH, HEIGHT);
 
 }
 
