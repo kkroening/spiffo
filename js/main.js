@@ -2,9 +2,6 @@ if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
 }
 
-var renderer, scene, camera, stats;
-var objects = [];
-
 function Unimplemented() {
     throw new Error("Unimplemented method");
 }
@@ -280,7 +277,7 @@ var params = {
     //
     resolution: 30,
 
-    showSignal: false
+    showSignal: true
 };
 
 
@@ -324,11 +321,11 @@ function Plotter(name) {
 Plotter.prototype = Object.create(Component.prototype);
 Plotter.prototype.run = function(deltaTime) {
     if (splineObject != null) {
-        scene.remove(splineObject);
+        mainRenderView.scene.remove(splineObject);
         splineObject = null;
     }
     if (signalObject != null) {
-        scene.remove(signalObject);
+        signalRenderView.scene.remove(signalObject);
         signalObject = null;
     }
 
@@ -340,8 +337,7 @@ Plotter.prototype.run = function(deltaTime) {
         }
 
         var length = this.in.event.data.length;
-        var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
-        var signalScaleY = 1 / (length) * HEIGHT/6.5;
+        var signalScaleY = 1 / (params.a1 + params.a2 + params.a3) * HEIGHT/10;
 
         for (var n = 0; n < length; n++) {
             var p = this.in.event.data[n];
@@ -351,18 +347,18 @@ Plotter.prototype.run = function(deltaTime) {
             geometrySpline.vertices[n] = new THREE.Vector3(x, y, z);
 
             if (params.showSignal && (n % 2) == 0) {
-                geometrySignal.vertices[n/2] = new THREE.Vector3(-x*signalScaleX - WIDTH/14, -(n-length*0.5)*signalScaleY, 0);
+                geometrySignal.vertices[n/2] = new THREE.Vector3((n/length - 0.5) * WIDTH, -x * signalScaleY, 0);
             }
         }
 
         geometrySpline.computeLineDistances();
         splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-        scene.add(splineObject);
+        mainRenderView.scene.add(splineObject);
 
         if (params.showSignal) {
             geometrySignal.computeLineDistances();
             signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-            scene.add(signalObject);
+            signalRenderView.scene.add(signalObject);
         }
     }
 }
@@ -415,26 +411,71 @@ function runScheduler(deltaTime) {
     plotter.run(deltaTime);
 }
 
-function RenderView() {
+function MainRenderView() {
     View.call(this, -1, -1);
+    this.camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
+    this.camera.position.z = 150;
+    this.scene = new THREE.Scene();
+    //this.scene.fog = new THREE.Fog( 0x111111, 170, 200 );
+    this.root = new THREE.Object3D();
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setClearColor(0x111111, 1);
+    this.renderer.setSize(WIDTH, HEIGHT);
+    this.div.append(this.renderer.domElement);
+    this.stats = new Stats();
+    this.stats.domElement.style.position = 'absolute';
+    this.stats.domElement.style.top = '0px';
+    this.div.append(this.stats.domElement);
 }
 
-RenderView.prototype = Object.create(View.prototype);
-RenderView.prototype.constructor = RenderView;
+MainRenderView.prototype = Object.create(View.prototype);
+MainRenderView.prototype.constructor = MainRenderView;
 
-RenderView.prototype.setSize = function(width, height) {
+MainRenderView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
-
     WIDTH = width;
     HEIGHT = height;
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(width, height);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
 }
 
-var renderView;
+MainRenderView.prototype.render = function() {
+    this.renderer.render(this.scene, this.camera);
+}
+
+var mainRenderView;
+
+
+function SignalRenderView() {
+    View.call(this, -1, 200);
+    this.camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
+    this.camera.position.z = 150;
+    this.scene = new THREE.Scene();
+    //this.scene.fog = new THREE.Fog( 0x111111, 170, 200 );
+    this.root = new THREE.Object3D();
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setClearColor(0x111111, 1);
+    this.renderer.setSize(WIDTH, HEIGHT);
+    this.div.append(this.renderer.domElement);
+}
+
+SignalRenderView.prototype = Object.create(View.prototype);
+SignalRenderView.prototype.constructor = SignalRenderView;
+
+SignalRenderView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
+}
+
+SignalRenderView.prototype.render = function() {
+    this.renderer.render(this.scene, this.camera);
+}
+
+
+var signalRenderView;
 
 
 function DatView(width, height) {
@@ -466,7 +507,7 @@ function DatView(width, height) {
     gui.add(params, 'cycles').min(0).max(5);
     gui.add(params, 'speed').min(-2).max(2);
     gui.add(params, 'resolution').min(10).max(2000);
-    gui.add(params, 'showSignal');
+    //gui.add(params, 'showSignal');
 }
 
 DatView.prototype = Object.create(View.prototype);
@@ -481,29 +522,11 @@ var datView;
 
 
 function init() {
-    camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
-    camera.position.z = 150;
+    mainRenderView = new MainRenderView();
+    topLevelView.setCenter(mainRenderView);
 
-    scene = new THREE.Scene();
-
-    //scene.fog = new THREE.Fog( 0x111111, 170, 200 );
-
-    root = new THREE.Object3D();
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor(0x111111, 1);
-    renderer.setSize(WIDTH, HEIGHT);
-
-    var container = document.getElementById('center');
-    container.appendChild(renderer.domElement);
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild(stats.domElement);
-
-    renderView = new RenderView();
-    topLevelView.setCenter(renderView);
+    signalRenderView = new SignalRenderView();
+    topLevelView.setBottom(signalRenderView);
 
     datView = new DatView(300, -1);
     topLevelView.setRight(datView);
@@ -513,8 +536,9 @@ function animate() {
     requestAnimationFrame(animate);
 
     update();
-    render();
-    stats.update();
+    mainRenderView.render();
+    signalRenderView.render();
+    mainRenderView.stats.update();
 }
 
 function update() {
@@ -530,9 +554,4 @@ function update() {
     
     splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/213);
     splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/200);
-}
-
-function render() {
-    renderer.render( scene, camera );
-
 }
