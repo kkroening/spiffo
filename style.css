@@ -93,6 +93,7 @@ div.view {
     border-style: solid;
     border-width: 1px;
     border-color: black;
+    border-radius: 3px;
 }
 
 .component-label {
@@ -101,9 +102,11 @@ div.view {
 }
 
 .input-port {
+    white-space: nowrap;
 }
 
 .output-port {
+    white-space: nowrap;
 }
 
 .component-inputs {
@@ -119,27 +122,35 @@ div.view {
 }
 
 .input-terminal {
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
     background-color: #888888;
     border-style: solid;
     border-width: 1px;
     border-color: black;
+    border-radius: 3px;
     float: left;
 }
 
 .output-terminal {
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
     background-color: #888888;
     border-style: solid;
     border-width: 1px;
     border-color: black;
+    border-radius: 3px;
     float: right;
 }
 
-.port-label {
+.input-port-label {
     color: black;
+    margin-left: 15px;
+}
+
+.output-port-label {
+    color: black;
+    margin-right: 15px;
 }
 
 .component-label {

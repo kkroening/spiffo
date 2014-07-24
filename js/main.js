@@ -500,14 +500,15 @@ function ComponentView() {
                 }
                 p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPorts);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
+                p.div.label = $("<h5 class=\"output-port-label\">" + p.name + "</h5>");
             } else {
                 if (c.inputPorts == null) {
                     c.inputPorts = mkdiv("inputs-" + c.name, "component-inputs", c.div);
                 }
                 p.div = mkdiv("component-" + c.name + "-port-" + p.name, "input-port", c.inputPorts);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "input-terminal", p.div);
+                p.div.label = $("<h5 class=\"input-port-label\">" + p.name + "</h5>");
             }
-            p.div.label = $("<h5 class=\"port-label\">" + p.name + "</h5>");
             p.div.label.appendTo(p.div);
         }
         c.div.css("width", "150px");
