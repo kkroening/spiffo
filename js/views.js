@@ -65,22 +65,6 @@ AttributeView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
 }
 
-
-function ComponentView() {
-    View.call(this, -1, -1);
-    this.div.addClass('component-view');
-    this.div.selectable();
-    $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
-}
-
-ComponentView.prototype = Object.create(View.prototype);
-ComponentView.prototype.constructor = ComponentView;
-
-ComponentView.prototype.setSize = function(width, height) {
-    View.prototype.setSize.call(this, width, height);
-}
-
-
 function EmptyView(width, height) {
     View.call(this, width, height);
     //this.div.selectable();
@@ -302,11 +286,11 @@ $(document).ready(function() {
     //datView = new EmptyView(300, -1);
 
     topLevelView = new TopLevelView($('#main'));
-    topLevelView.setLeft   (new TestView(200, -1, "left"));
+    topLevelView.setLeft   (new TestView(400, -1, "left"));
     //topLevelView.setRight  (new AttributeView());
     //topLevelView.setRight  (datView);
     topLevelView.setTop    (new TestView(-1, 100, "top"));
-    topLevelView.setBottom (new TestView(-1, 200, "bottom"));
+    topLevelView.setBottom (new TestView(-1, 250, "bottom"));
     //topLevelView.setCenter (renderView);
     $(window).resize(doResize);
 });

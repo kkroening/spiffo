@@ -268,14 +268,13 @@ var params = {
     //  - cycles - number of revolutions (for example, a sinusoid with a frequency
     //    of 1 and 3 cycles would produce 1*3 circles)
     //
-    //cycles: 3.0,
-    cycles: 2.0,
+    cycles: 3.0,
 
     //
     //  - resolution - samples per cycle: higher values correspond to smoother
     //    lines at the expense of CPU time.
     //
-    resolution: 30,
+    resolution: 300,
 
     showSignal: true
 };
@@ -476,6 +475,23 @@ SignalRenderView.prototype.render = function() {
 
 
 var signalRenderView;
+
+
+function ComponentView() {
+    View.call(this, -1, -1);
+    this.div.addClass('component-view');
+    this.div.selectable();
+    $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
+}
+
+ComponentView.prototype = Object.create(View.prototype);
+ComponentView.prototype.constructor = ComponentView;
+
+ComponentView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+}
+
+var componentView;
 
 
 function DatView(width, height) {
