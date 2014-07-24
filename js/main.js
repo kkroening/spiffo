@@ -12,7 +12,7 @@ function Vector(size) {
     EventType.call(this);
     this.x = [];
     for (var i = 0; i < size; i++) {
-	this.x[i] = 0.0;
+        this.x[i] = 0.0;
     }
 }
 
@@ -52,8 +52,8 @@ function Sequence(eventType, size) {
     this.size = size;
     this.data = [];
     for (var i = 0; i < size; i++) {
-	var foo = eventType.create();
-	this.data[i] = eventType.create();
+        var foo = eventType.create();
+        this.data[i] = eventType.create();
     }
 }
 Sequence.prototype = Object.create(EventType.prototype);
@@ -123,56 +123,56 @@ function Port(name, eventType, isOutput) {
     if (isOutput) {
         this.event = eventType.create();
     } else {
-	this.event = null;
+        this.event = null;
     }
 }
 Port.prototype.connect = function(other) {
     for (var i = 0; i < this.connections.length; i++) {
-	if (this.connections[i] == other) {
-	    return;
-	}
+        if (this.connections[i] == other) {
+            return;
+        }
     }
     if (this.isOutput) {
-	if (other.isOutput) {
-	    throw new Error("Can't connect output port '" + this.name + "' to output port '" + other.name + "'");
-	}
-	other.event = this.event;
+        if (other.isOutput) {
+            throw new Error("Can't connect output port '" + this.name + "' to output port '" + other.name + "'");
+        }
+        other.event = this.event;
     } else {
-	if (other.isInput) {
-	    throw new Error("Can't connect input port '" + this.name + "' to input port '" + other.name + "'");
-	}
-	this.event = other.event;
+        if (other.isInput) {
+            throw new Error("Can't connect input port '" + this.name + "' to input port '" + other.name + "'");
+        }
+        this.event = other.event;
     }
     this.connections.push(other);
     other.connections.push(this);
 }
 Port.prototype.disconnect = function(other) {
     for (var i = 0; i < this.connections.length; i++) {
-	if (this.connections[i] == other) {
-	    this.connections.splice(i, i);
-	    other.disconnect(this);
-	    if (!this.isOutput) {
-		this.event = null;
-	    }
-	    break;
-	}
+        if (this.connections[i] == other) {
+            this.connections.splice(i, i);
+            other.disconnect(this);
+            if (!this.isOutput) {
+                this.event = null;
+            }
+            break;
+        }
     }
 }
 Port.prototype.disconnectAll = function() {
     var connections = this.connections;
     this.connections = [];
     for (var i = 0; i < this.connections.length; i++) {
-	this.connections[i].disconnect(this);
+        this.connections[i].disconnect(this);
     }
 }
 Port.prototype.setEvent = function(event) {
     if (!this.isOutput) { 
-	throw new Error("Attempted to call setEvent on input port '" + this.name + "' (can only be called on output ports)");
+        throw new Error("Attempted to call setEvent on input port '" + this.name + "' (can only be called on output ports)");
     }
     this.event = event;
     for (var i = 0; i < this.connections.length; i++) {
-	var connection = this.connections[i];
-	connection.event = this.event;
+        var connection = this.connections[i];
+        connection.event = this.event;
     }
 }
 
@@ -183,13 +183,13 @@ function Component(name) {
 }
 Component.prototype.addPort = function(port) {
     if (port.owner) {
-	throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
+        throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
     }
     for (var i = 0; i < this.ports.length; i++) {
-	var port2 = this.ports[i];
-	if (port2 == port) {
-	    throw new Error("Component '" + this.name + "' already contains port '" + port.name + "'");
-	}
+        var port2 = this.ports[i];
+        if (port2 == port) {
+            throw new Error("Component '" + this.name + "' already contains port '" + port.name + "'");
+        }
     }
     port.owner = this;
     this.ports.push(port);
@@ -292,11 +292,11 @@ Generator.prototype.run = function(deltaTime) {
     var event = this.out.event;
     var length = Math.floor(params.cycles * params.resolution);
     if (event.data.length != length) {
-	this.out.setEvent(new Sequence(vector3EventType, length));
-	event = this.out.event;
+        this.out.setEvent(new Sequence(vector3EventType, length));
+        event = this.out.event;
     }
     for (var n = 0; n < length; n++) {
-	var i = n / params.resolution;
+        var i = n / params.resolution;
         var pow1 = Math.pow(params.c1, i);
         var pow2 = Math.pow(params.c2, i);
         var pow3 = Math.pow(params.c3, i);
@@ -308,8 +308,8 @@ Generator.prototype.run = function(deltaTime) {
         var y3 = params.a3 * pow3 * Math.sin(Math.PI*2*(i*params.w3 + params.p3));
         var z = -params.depth*i + 30;
         event.data[n].x[0] = x1+x2+x3;
-	event.data[n].x[1] = y1+y2+y3;
-	event.data[n].x[2] = z;
+        event.data[n].x[1] = y1+y2+y3;
+        event.data[n].x[2] = z;
     }
 }
 
@@ -323,45 +323,45 @@ Plotter.prototype = Object.create(Component.prototype);
 Plotter.prototype.run = function(deltaTime) {
     if (splineObject != null) {
         scene.remove(splineObject);
-	splineObject = null;
+        splineObject = null;
     }
     if (signalObject != null) {
         scene.remove(signalObject);
-	signalObject = null;
+        signalObject = null;
     }
 
     if (this.in.event) {
-	var geometrySpline = new THREE.Geometry();
-	var geometrySignal;
-	if (params.showSignal) {
-	    geometrySignal = new THREE.Geometry();
-	}
+        var geometrySpline = new THREE.Geometry();
+        var geometrySignal;
+        if (params.showSignal) {
+            geometrySignal = new THREE.Geometry();
+        }
 
-	var length = this.in.event.data.length;
-	var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
-	var signalScaleY = 1 / (length) * HEIGHT/6.5;
+        var length = this.in.event.data.length;
+        var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
+        var signalScaleY = 1 / (length) * HEIGHT/6.5;
 
-	for (var n = 0; n < length; n++) {
-	    var p = this.in.event.data[n];
-	    var x = p.x[0];
-	    var y = p.x[1];
-	    var z = p.x[2];
-	    geometrySpline.vertices[n] = new THREE.Vector3(x, y, z);
+        for (var n = 0; n < length; n++) {
+            var p = this.in.event.data[n];
+            var x = p.x[0];
+            var y = p.x[1];
+            var z = p.x[2];
+            geometrySpline.vertices[n] = new THREE.Vector3(x, y, z);
 
-	    if (params.showSignal && (n % 2) == 0) {
-		geometrySignal.vertices[n/2] = new THREE.Vector3(-x*signalScaleX - WIDTH/14, -(n-length*0.5)*signalScaleY, 0);
-	    }
-	}
+            if (params.showSignal && (n % 2) == 0) {
+                geometrySignal.vertices[n/2] = new THREE.Vector3(-x*signalScaleX - WIDTH/14, -(n-length*0.5)*signalScaleY, 0);
+            }
+        }
 
-	geometrySpline.computeLineDistances();
-	splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-	scene.add(splineObject);
+        geometrySpline.computeLineDistances();
+        splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+        scene.add(splineObject);
 
-	if (params.showSignal) {
-	    geometrySignal.computeLineDistances();
-	    signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-	    scene.add(signalObject);
-	}
+        if (params.showSignal) {
+            geometrySignal.computeLineDistances();
+            signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+            scene.add(signalObject);
+        }
     }
 }
 
@@ -382,23 +382,23 @@ animate();
 function updateParameters(deltaTime) {
     params.w1 += params.dw1*deltaTime;
     if (params.w1 > params.max_freq) {
-	params.w1 = -params.max_freq;
+        params.w1 = -params.max_freq;
     } else if (params.w1 < -params.max_freq) {
-	params.w1 = params.max_freq;
+        params.w1 = params.max_freq;
     }
 
     params.w2 += params.dw2*deltaTime;
     if (params.w2 > params.max_freq) {
-	params.w2 = -params.max_freq;
+        params.w2 = -params.max_freq;
     } else if (params.w2 < -params.max_freq) {
-	params.w2 = params.max_freq;
+        params.w2 = params.max_freq;
     }
 
     params.w3 += params.dw3*deltaTime;
     if (params.w3 > params.max_freq) {
-	params.w3 = -params.max_freq;
+        params.w3 = -params.max_freq;
     } else if (params.w3 < -params.max_freq) {
-	params.w3 = params.max_freq;
+        params.w3 = params.max_freq;
     }
 
     params.p1 += params.dp1 * deltaTime;
