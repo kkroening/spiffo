@@ -47,9 +47,9 @@ function newComplexNumber(re, im) {
 }
 
 
-function Sequence(size, eventType) {
-    this.size = size;
+function Sequence(eventType, size) {
     this.eventType = eventType;
+    this.size = size;
     this.data = [];
     for (var i = 0; i < size; i++) {
 	var foo = eventType.create();
@@ -110,7 +110,7 @@ function SequenceEventType(eventType, defaultSize) {
 }
 SequenceEventType.prototype = Object.create(EventType.prototype);
 SequenceEventType.prototype.create = function() {
-    return new Sequence(this.defaultSize, this.eventType);
+    return new Sequence(this.eventType, this.defaultSize);
 }
 
 
@@ -127,8 +127,8 @@ function Port(name, eventType, isOutput) {
     }
 }
 Port.prototype.connect = function(other) {
-    for (var connection in this.connections) {
-	if (connection == other) {
+    for (var i = 0; i < this.connections.length; i++) {
+	if (this.connections[i] == other) {
 	    return;
 	}
     }
@@ -161,8 +161,18 @@ Port.prototype.disconnect = function(other) {
 Port.prototype.disconnectAll = function() {
     var connections = this.connections;
     this.connections = [];
-    for (var connection in connections) {
-	connection.disconnect(this);
+    for (var i = 0; i < this.connections.length; i++) {
+	this.connections[i].disconnect(this);
+    }
+}
+Port.prototype.setEvent = function(event) {
+    if (!this.isOutput) { 
+	throw new Error("Attempted to call setEvent on input port '" + this.name + "' (can only be called on output ports)");
+    }
+    this.event = event;
+    for (var i = 0; i < this.connections.length; i++) {
+	var connection = this.connections[i];
+	connection.event = this.event;
     }
 }
 
@@ -175,7 +185,8 @@ Component.prototype.addPort = function(port) {
     if (port.owner) {
 	throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
     }
-    for (var port2 in this.ports) {
+    for (var i = 0; i < this.ports.length; i++) {
+	var port2 = this.ports[i];
 	if (port2 == port) {
 	    throw new Error("Component '" + this.name + "' already contains port '" + port.name + "'");
 	}
@@ -185,33 +196,6 @@ Component.prototype.addPort = function(port) {
 }
 Component.prototype.run = Unimplemented;
 
-
-function Generator(name) {
-    Component.call(this, name);
-    this.out = new Port("out", new SequenceEventType(vector3EventType, 10), true);
-    Component.prototype.addPort.call(this, this.out);
-}
-Generator.prototype = Object.create(Component.prototype);
-Generator.prototype.run = function(deltaTime) {
-
-}
-
-
-function Plotter(name) {
-    Component.call(this, name);
-    this.in = new Port("in", new SequenceEventType(vector3EventType, 10), false);
-    Component.prototype.addPort.call(this, this.in);
-}
-Plotter.prototype = Object.create(Component.prototype);
-Plotter.prototype.run = function(deltaTime) {
-
-}
-
-
-var generator = new Generator("generator");
-var plotter = new Plotter("plotter");
-generator.out.connect(plotter.in);
-generator.out.event.data[0].x[0] = 2;
 
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
@@ -298,8 +282,98 @@ var params = {
 };
 
 
+function Generator(name) {
+    Component.call(this, name);
+    this.out = new Port("out", new SequenceEventType(vector3EventType, 10), true);
+    Component.prototype.addPort.call(this, this.out);
+}
+Generator.prototype = Object.create(Component.prototype);
+Generator.prototype.run = function(deltaTime) {
+    var event = this.out.event;
+    var length = Math.floor(params.cycles * params.resolution);
+    if (event.data.length != length) {
+	this.out.setEvent(new Sequence(vector3EventType, length));
+	event = this.out.event;
+    }
+    for (var n = 0; n < length; n++) {
+	var i = n / params.resolution;
+        var pow1 = Math.pow(params.c1, i);
+        var pow2 = Math.pow(params.c2, i);
+        var pow3 = Math.pow(params.c3, i);
+        var x1 = params.a1 * pow1 * Math.cos(Math.PI*2*(i*params.w1 + params.p1));
+        var x2 = params.a2 * pow2 * Math.cos(Math.PI*2*(i*params.w2 + params.p2));
+        var x3 = params.a3 * pow3 * Math.cos(Math.PI*2*(i*params.w3 + params.p3));
+        var y1 = params.a1 * pow1 * Math.sin(Math.PI*2*(i*params.w1 + params.p1));
+        var y2 = params.a2 * pow2 * Math.sin(Math.PI*2*(i*params.w2 + params.p2));
+        var y3 = params.a3 * pow3 * Math.sin(Math.PI*2*(i*params.w3 + params.p3));
+        var z = -params.depth*i + 30;
+        event.data[n].x[0] = x1+x2+x3;
+	event.data[n].x[1] = y1+y2+y3;
+	event.data[n].x[2] = z;
+    }
+}
+
+
+function Plotter(name) {
+    Component.call(this, name);
+    this.in = new Port("in", new SequenceEventType(vector3EventType, 10), false);
+    Component.prototype.addPort.call(this, this.in);
+}
+Plotter.prototype = Object.create(Component.prototype);
+Plotter.prototype.run = function(deltaTime) {
+    if (splineObject != null) {
+        scene.remove(splineObject);
+	splineObject = null;
+    }
+    if (signalObject != null) {
+        scene.remove(signalObject);
+	signalObject = null;
+    }
+
+    if (this.in.event) {
+	var geometrySpline = new THREE.Geometry();
+	var geometrySignal;
+	if (params.showSignal) {
+	    geometrySignal = new THREE.Geometry();
+	}
+
+	var length = this.in.event.data.length;
+	var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
+	var signalScaleY = 1 / (length) * HEIGHT/6.5;
+
+	for (var n = 0; n < length; n++) {
+	    var p = this.in.event.data[n];
+	    var x = p.x[0];
+	    var y = p.x[1];
+	    var z = p.x[2];
+	    geometrySpline.vertices[n] = new THREE.Vector3(x, y, z);
+
+	    if (params.showSignal && (n % 2) == 0) {
+		geometrySignal.vertices[n/2] = new THREE.Vector3(-x*signalScaleX - WIDTH/14, -(n-length*0.5)*signalScaleY, 0);
+	    }
+	}
+
+	geometrySpline.computeLineDistances();
+	splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+	scene.add(splineObject);
+
+	if (params.showSignal) {
+	    geometrySignal.computeLineDistances();
+	    signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
+	    scene.add(signalObject);
+	}
+    }
+}
+
+
+var generator = new Generator("generator");
+var plotter = new Plotter("plotter");
+generator.out.connect(plotter.in);
+
+
 init();
 animate();
+
 
 //
 // updateParameters: called after each frame to continuously update the main
@@ -337,55 +411,6 @@ function runScheduler(deltaTime) {
     plotter.run(deltaTime);
 }
 
-function updateSpline(deltaTime) {
-    if (splineObject != null) {
-        scene.remove(splineObject);
-    }
-    if (signalObject != null) {
-        scene.remove(signalObject);
-    }
-
-    var geometrySpline = new THREE.Geometry();
-    var geometrySignal;
-    if (params.showSignal) {
-        geometrySignal = new THREE.Geometry();
-    }
-
-    var signalScaleX = 1 / (params.a1 + params.a2 + params.a3) * WIDTH/80;
-    var signalScaleY = 1 / (params.cycles * params.resolution) * HEIGHT/6.5;
-
-    for (var n = 0; n < params.cycles * params.resolution; n++) {
-	var i = n / params.resolution;
-        var pow1 = Math.pow(params.c1, i);
-        var pow2 = Math.pow(params.c2, i);
-        var pow3 = Math.pow(params.c3, i);
-        var x1 = params.a1 * pow1 * Math.cos(Math.PI*2*(i*params.w1 + params.p1));
-        var x2 = params.a2 * pow2 * Math.cos(Math.PI*2*(i*params.w2 + params.p2));
-        var x3 = params.a3 * pow3 * Math.cos(Math.PI*2*(i*params.w3 + params.p3));
-        var y1 = params.a1 * pow1 * Math.sin(Math.PI*2*(i*params.w1 + params.p1));
-        var y2 = params.a2 * pow2 * Math.sin(Math.PI*2*(i*params.w2 + params.p2));
-        var y3 = params.a3 * pow3 * Math.sin(Math.PI*2*(i*params.w3 + params.p3));
-        var z = -params.depth*i + 30;
-        geometrySpline.vertices[n] = new THREE.Vector3(x1+x2+x3, y1+y2+y3, z);
-
-        if (params.showSignal && (n % 2) == 0) {
-            geometrySignal.vertices[n/2] = new THREE.Vector3(-(x1+x2+x3)*signalScaleX - WIDTH/14, -(n-params.cycles*params.resolution*0.5)*signalScaleY, 0);
-        }
-    }
-
-    geometrySpline.computeLineDistances();
-    splineObject = new THREE.Line( geometrySpline, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-    scene.add(splineObject);
-
-    if (params.showSignal) {
-        geometrySignal.computeLineDistances();
-        signalObject = new THREE.Line( geometrySignal, new THREE.LineDashedMaterial( { color: 0x7777ee, dashSize: 1, gapSize: 0.5 } ), THREE.LineStrip );
-        scene.add(signalObject);
-    }
-
-    updateParameters(deltaTime);
-}
-
 function init() {
     camera = new THREE.PerspectiveCamera( 60, WIDTH / HEIGHT, 1, 2000 );
     camera.position.z = 150;
@@ -396,7 +421,7 @@ function init() {
 
     root = new THREE.Object3D();
 
-    updateSpline(0);
+    runScheduler(0);
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setClearColor( 0x111111, 1 );
@@ -463,10 +488,12 @@ function animate() {
 
 function update() {
     var nextTime = Date.now();
-    var deltaTime = (nextTime - lastTime)*0.001;
+    var realDeltaTime = (nextTime - lastTime)*0.001;
+    var deltaTime = realDeltaTime * params.speed;
     lastTime = nextTime;
 
-    updateSpline(deltaTime * params.speed);
+    runScheduler(deltaTime);
+    updateParameters(deltaTime);
 
     k++;
     
