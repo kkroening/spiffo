@@ -1,42 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Kral's Spiffy Spirograph</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <style>
-            body {
-                color: #ffffff;
-                font-family:Monospace;
-                font-size:13px;
-                text-align:center;
-                font-weight: bold;
+<html>
+<head>
+    <title>Kral's Spiffy Spirograph</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="jquery-ui.css" type="text/css"/>
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+</head>
+<body>
+    <div id="info">Kral's Spiffy Spirograph</div>
+    <div id="main">
+    </div>
 
-                background-color: #000000;
-                margin: 0px;
-                overflow: hidden;
-            }
-            #info {
-                color: #fff;
-                position: absolute;
-                top: 0px; width: 100%;
-                padding: 5px;
-            }
-        </style>
-    </head>
+    <script src="js/three.min.js"></script>
+    <script src="js/dat.gui.min.js"></script>
 
-    <body>
-        <div id="info">Kral's Spiffy Spirograph</div>
-        <div id="container"></div>
+    <script src="js/Detector.js"></script>
+    <script src="js/libs/stats.min.js"></script>
 
-        <script src="js/three.min.js"></script>
-        <script src="js/dat.gui.min.js"></script>
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
 
-        <script src="js/Detector.js"></script>
-        <script src="js/libs/stats.min.js"></script>
+    <script src="js/views.js"></script>
 
-        <script src="js/main.js"></script>
-
+    <script src="js/main.js"></script>
 </body>
-
 </html>

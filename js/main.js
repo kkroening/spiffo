@@ -1,4 +1,6 @@
-if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+if (!Detector.webgl) {
+    Detector.addGetWebGLMessage();
+}
 
 var renderer, scene, camera, stats;
 var objects = [];
@@ -197,8 +199,7 @@ Component.prototype.addPort = function(port) {
 Component.prototype.run = Unimplemented;
 
 
-var WIDTH = window.innerWidth,
-    HEIGHT = window.innerHeight;
+var WIDTH, HEIGHT;
 
 var k = 0;
 var splineObject;
@@ -270,13 +271,14 @@ var params = {
     //  - cycles - number of revolutions (for example, a sinusoid with a frequency
     //    of 1 and 3 cycles would produce 1*3 circles)
     //
-    cycles: 3.0,
+    //cycles: 3.0,
+    cycles: 2.0,
 
     //
     //  - resolution - samples per cycle: higher values correspond to smoother
     //    lines at the expense of CPU time.
     //
-    resolution: 300,
+    resolution: 30,
 
     showSignal: false
 };
@@ -371,8 +373,10 @@ var plotter = new Plotter("plotter");
 generator.out.connect(plotter.in);
 
 
-init();
-animate();
+$(document).ready(function() {
+    init();
+    animate();
+});
 
 
 //
@@ -411,35 +415,35 @@ function runScheduler(deltaTime) {
     plotter.run(deltaTime);
 }
 
-function init() {
-    camera = new THREE.PerspectiveCamera( 60, WIDTH / HEIGHT, 1, 2000 );
-    camera.position.z = 150;
+function RenderView() {
+    View.call(this, -1, -1);
+}
 
-    scene = new THREE.Scene();
+RenderView.prototype = Object.create(View.prototype);
+RenderView.prototype.constructor = RenderView;
 
-    //scene.fog = new THREE.Fog( 0x111111, 170, 200 );
+RenderView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
 
-    root = new THREE.Object3D();
+    WIDTH = width;
+    HEIGHT = height;
 
-    runScheduler(0);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
 
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setClearColor( 0x111111, 1 );
-    renderer.setSize( WIDTH, HEIGHT );
+    renderer.setSize(width, height);
+}
 
-    var container = document.getElementById( 'container' );
-    container.appendChild( renderer.domElement );
+var renderView;
 
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild( stats.domElement );
 
-    //
+function DatView(width, height) {
+    View.call(this, width, height);
 
-    window.addEventListener( 'resize', onWindowResize, false );
+    var gui = new dat.GUI({ autoPlace: false, resizable: false, hideable: false});
+    this.gui = gui;
+    this.div.append(gui.domElement);
 
-    var gui = new dat.GUI();
     gui.add(params, 'a1').min(0).max(1000);
     gui.add(params, 'a2').min(0).max(1000);
     gui.add(params, 'a3').min(0).max(1000);
@@ -465,25 +469,52 @@ function init() {
     gui.add(params, 'showSignal');
 }
 
-function onWindowResize() {
-    WIDTH = window.innerWidth;
-    HEIGHT = window.innerHeight;
+DatView.prototype = Object.create(View.prototype);
+DatView.prototype.constructor = DatView;
 
-    camera.aspect = WIDTH / HEIGHT;
-    camera.updateProjectionMatrix();
+DatView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+    this.gui.width = width;
+}
 
+var datView;
+
+
+function init() {
+    camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
+    camera.position.z = 150;
+
+    scene = new THREE.Scene();
+
+    //scene.fog = new THREE.Fog( 0x111111, 170, 200 );
+
+    root = new THREE.Object3D();
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setClearColor(0x111111, 1);
     renderer.setSize(WIDTH, HEIGHT);
 
+    var container = document.getElementById('center');
+    container.appendChild(renderer.domElement);
+
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    container.appendChild(stats.domElement);
+
+    renderView = new RenderView();
+    topLevelView.setCenter(renderView);
+
+    datView = new DatView(300, -1);
+    topLevelView.setRight(datView);
 }
 
 function animate() {
-
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
 
     update();
     render();
     stats.update();
-
 }
 
 function update() {
