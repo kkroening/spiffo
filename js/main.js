@@ -77,6 +77,7 @@ NumberEventType.prototype = Object.create(EventType.prototype);
 NumberEventType.prototype.create = function() {
     return 0.0;
 }
+var numberEventType = new NumberEventType();
 
 
 function VectorEventType(size) {
@@ -101,6 +102,7 @@ ComplexEventType.prototype = Object.create(EventType.prototype);
 ComplexEventType.prototype.create = function() {
     return new ComplexNumber(0.0, 0.0);
 }
+var complexEventType = new ComplexEventType();
 
 
 function SequenceEventType(eventType, defaultSize) {
@@ -294,6 +296,37 @@ var params = {
 };
 
 
+function Sinusoid(name) {
+    Component.call(this, name);
+    this.freq = new Port("freq", numberEventType, false);
+    this.phase = new Port("phase", numberEventType, false);
+    this.out = new Port("out", new SequenceEventType(vector2EventType, 10), true);
+    Component.prototype.addPort.call(this, this.freq);
+    Component.prototype.addPort.call(this, this.phase);
+    Component.prototype.addPort.call(this, this.out);
+}
+Sinusoid.prototype = Object.create(Component.prototype);
+Sinusoid.prototype.run = function(deltaTime) {
+}
+
+function Adder(name, numInputs, eventType) {
+    Component.call(this, name);
+    this.eventType = eventType;
+    this.setNumInputs(numInputs);
+    this.out = new Port("out", eventType, true);
+    Component.prototype.addPort.call(this, this.out);
+}
+Adder.prototype.setNumInputs = function(numInputs) {
+    // FIXME: allow setNumPorts to be called post-init.
+    this.in = [];
+    for (var i = 0; i < numInputs; i++) {
+        this.in.push(new Port("in" + i, this.eventType, false));
+        Component.prototype.addPort.call(this, this.in[i]);
+    }
+}
+Adder.prototype.run = function(deltaTime) {
+}
+
 function Generator(name) {
     Component.call(this, name);
     this.out = new Port("out", new SequenceEventType(vector3EventType, 10), true);
@@ -376,16 +409,35 @@ Plotter.prototype.run = function(deltaTime) {
     }
 }
 
+var components = [];
 
 var generator = new Generator("generator");
+components.push(generator);
+
 var plotter = new Plotter("plotter");
 generator.x = 100;
 generator.y = 50;
 plotter.x = 400;
 plotter.y = 50;
-generator.out.connect(plotter.in);
+components.push(plotter);
 
-var components = [ generator, plotter ];
+var adder = new Adder("adder", 3, new SequenceEventType(vector2EventType, 10));
+components.push(adder);
+
+var sin1 = new Sinusoid("sin1");
+components.push(sin1);
+
+var sin2 = new Sinusoid("sin2");
+components.push(sin2);
+
+var sin3 = new Sinusoid("sin3");
+components.push(sin3);
+
+sin1.out.connect(adder.in[0]);
+sin2.out.connect(adder.in[1]);
+sin3.out.connect(adder.in[2]);
+
+generator.out.connect(plotter.in);
 
 
 $(document).ready(function() {
@@ -549,8 +601,6 @@ ComponentView.prototype.init = function() {
             }
             p.div.label.appendTo(p.div);
         }
-        c.div.css("width", "150px");
-        c.div.css("height", "80px");
         c.div.css("left", c.x + "px");
         c.div.css("top", c.y + "px");
         var that = this;
