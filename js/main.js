@@ -1,8 +1,217 @@
-﻿if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 var renderer, scene, camera, stats;
 var objects = [];
 
+function Unimplemented() {
+    throw new Error("Unimplemented method");
+}
+
+
+function Vector(size) {
+    EventType.call(this);
+    this.x = [];
+    for (var i = 0; i < size; i++) {
+	this.x[i] = 0.0;
+    }
+}
+
+
+function Vector2() {
+    Vector.call(this, 2);
+}
+Vector2.prototype = Vector.prototype;
+
+
+function Vector3() {
+    Vector.call(this, 3);
+}
+Vector3.prototype = Vector.prototype;
+
+
+function Vector4() {
+    Vector.call(this, 4);
+}
+Vector4.prototype = Vector.prototype;
+
+
+function ComplexNumber() {
+    Vector2.call(this);
+}
+ComplexNumber.prototype = Object.create(Vector2.prototype);
+
+function newComplexNumber(re, im) {
+    var x = new ComplexNumber();
+    x.x[0] = re;
+    x.x[1] = im;
+}
+
+
+function Sequence(size, eventType) {
+    this.size = size;
+    this.eventType = eventType;
+    this.data = [];
+    for (var i = 0; i < size; i++) {
+	var foo = eventType.create();
+	this.data[i] = eventType.create();
+    }
+}
+Sequence.prototype = Object.create(EventType.prototype);
+
+
+function EventType() {
+}
+EventType.prototype.create = Unimplemented;
+
+
+function DummyEventType() {
+    EventType.call(this);
+}
+DummyEventType.prototype = Object.create(EventType.prototype);
+
+
+function NumberEventType() {
+    EventType.call(this);
+}
+NumberEventType.prototype = Object.create(EventType.prototype);
+NumberEventType.prototype.create = function() {
+    return 0.0;
+}
+
+
+function VectorEventType(size) {
+    EventType.call(this);
+    this.size = size;
+}
+VectorEventType.prototype = Object.create(EventType.prototype);
+VectorEventType.prototype.create = function() {
+    return new Vector(this.size);
+}
+
+
+var vector2EventType = new VectorEventType(2);
+var vector3EventType = new VectorEventType(3);
+var vector4EventType = new VectorEventType(4);
+
+
+function ComplexEventType() {
+    EventType.call(this);
+}
+ComplexEventType.prototype = Object.create(EventType.prototype);
+ComplexEventType.prototype.create = function() {
+    return new ComplexNumber(0.0, 0.0);
+}
+
+
+function SequenceEventType(eventType, defaultSize) {
+    EventType.call(this);
+    this.eventType = eventType;
+    this.defaultSize = defaultSize;
+}
+SequenceEventType.prototype = Object.create(EventType.prototype);
+SequenceEventType.prototype.create = function() {
+    return new Sequence(this.defaultSize, this.eventType);
+}
+
+
+function Port(name, eventType, isOutput) {
+    this.name = name;
+    this.eventType = eventType;
+    this.isOutput = isOutput;
+    this.owner = null;
+    this.connections = [];
+    if (isOutput) {
+        this.event = eventType.create();
+    } else {
+	this.event = null;
+    }
+}
+Port.prototype.connect = function(other) {
+    for (var connection in this.connections) {
+	if (connection == other) {
+	    return;
+	}
+    }
+    if (this.isOutput) {
+	if (other.isOutput) {
+	    throw new Error("Can't connect output port '" + this.name + "' to output port '" + other.name + "'");
+	}
+	other.event = this.event;
+    } else {
+	if (other.isInput) {
+	    throw new Error("Can't connect input port '" + this.name + "' to input port '" + other.name + "'");
+	}
+	this.event = other.event;
+    }
+    this.connections.push(other);
+    other.connections.push(this);
+}
+Port.prototype.disconnect = function(other) {
+    for (var i = 0; i < this.connections.length; i++) {
+	if (this.connections[i] == other) {
+	    this.connections.splice(i, i);
+	    other.disconnect(this);
+	    if (!this.isOutput) {
+		this.event = null;
+	    }
+	    break;
+	}
+    }
+}
+Port.prototype.disconnectAll = function() {
+    var connections = this.connections;
+    this.connections = [];
+    for (var connection in connections) {
+	connection.disconnect(this);
+    }
+}
+
+
+function Component(name) {
+    this.name = name;
+    this.ports = [];
+}
+Component.prototype.addPort = function(port) {
+    if (port.owner) {
+	throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
+    }
+    for (var port2 in this.ports) {
+	if (port2 == port) {
+	    throw new Error("Component '" + this.name + "' already contains port '" + port.name + "'");
+	}
+    }
+    port.owner = this;
+    this.ports.push(port);
+}
+Component.prototype.run = Unimplemented;
+
+
+function Generator(name) {
+    Component.call(this, name);
+    this.out = new Port("out", new SequenceEventType(vector3EventType, 10), true);
+    Component.prototype.addPort.call(this, this.out);
+}
+Generator.prototype = Object.create(Component.prototype);
+Generator.prototype.run = function(deltaTime) {
+
+}
+
+
+function Plotter(name) {
+    Component.call(this, name);
+    this.in = new Port("in", new SequenceEventType(vector3EventType, 10), false);
+    Component.prototype.addPort.call(this, this.in);
+}
+Plotter.prototype = Object.create(Component.prototype);
+Plotter.prototype.run = function(deltaTime) {
+
+}
+
+
+var generator = new Generator("generator");
+var plotter = new Plotter("plotter");
+generator.out.connect(plotter.in);
+generator.out.event.data[0].x[0] = 2;
 
 var WIDTH = window.innerWidth,
     HEIGHT = window.innerHeight;
@@ -121,6 +330,11 @@ function updateParameters(deltaTime) {
     params.p1 += params.dp1 * deltaTime;
     params.p2 += params.dp2 * deltaTime;
     params.p3 += params.dp3 * deltaTime;
+}
+
+function runScheduler(deltaTime) {
+    generator.run(deltaTime);
+    plotter.run(deltaTime);
 }
 
 function updateSpline(deltaTime) {
