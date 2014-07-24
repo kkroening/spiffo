@@ -100,8 +100,11 @@ TestView.prototype.updateSizeText = function() {
 }
 
 var mkdiv = function(id, cls, owner) {
-    var result = $('<div id="' + id + '" class="' + cls + '"></div>').appendTo(owner);
-    result.css("background-color", Color.DARKEST);
+    var result = $('<div class="' + cls + '"></div>').appendTo(owner);
+    if (id != null && id !== "") {
+        result.attr('id', id);
+    }
+    //result.css("background-color", Color.DARKEST);
     return result;
 }
 
@@ -287,10 +290,9 @@ $(document).ready(function() {
 
     topLevelView = new TopLevelView($('#main'));
     topLevelView.setLeft   (new TestView(400, -1, "left"));
-    //topLevelView.setRight  (new AttributeView());
-    //topLevelView.setRight  (datView);
+    topLevelView.setRight  (new TestView(300, -1, "right"));
     topLevelView.setTop    (new TestView(-1, 100, "top"));
     topLevelView.setBottom (new TestView(-1, 250, "bottom"));
-    //topLevelView.setCenter (renderView);
+    topLevelView.setCenter (new TestView(-1, -1, "center"));
     $(window).resize(doResize);
 });

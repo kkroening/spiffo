@@ -33,6 +33,7 @@ div.view {
 }
 
 .tlv-left {
+    background-color: #1a1a1a;
     border-style: none solid none none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -46,6 +47,7 @@ div.view {
 }
 
 .tlv-top {
+    background-color: #1a1a1a;
     border-style: none none solid none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -60,6 +62,7 @@ div.view {
 }
 
 .tlv-bottom {
+    background-color: #1a1a1a;
     border-style: solid none none none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -73,6 +76,7 @@ div.view {
 }
 
 .tlv-right {
+    background-color: #1a1a1a;
     border-style: none none none solid;
     //border-color: black;
     border-color: #2fa1d6;
@@ -82,4 +86,62 @@ div.view {
 
 .tlv-right .ui-resizable-w {
     width: 15px;
+}
+
+.component {
+    background-color: #cccccc;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+.component-label {
+    text-align: center;
+    color: black;
+}
+
+.input-port {
+}
+
+.output-port {
+}
+
+.component-inputs {
+    float: left;
+    margin: 4px;
+    vertical-align: middle;
+}
+
+.component-outputs {
+    float: right;
+    margin: 4px;
+    vertical-align: middle;
+}
+
+.input-terminal {
+    width: 5px;
+    height: 5px;
+    background-color: #888888;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    float: left;
+}
+
+.output-terminal {
+    width: 5px;
+    height: 5px;
+    background-color: #888888;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    float: right;
+}
+
+.port-label {
+    color: black;
+}
+
+.component-label {
+    color: black;
 }

@@ -365,7 +365,13 @@ Plotter.prototype.run = function(deltaTime) {
 
 var generator = new Generator("generator");
 var plotter = new Plotter("plotter");
+generator.x = 100;
+generator.y = 50;
+plotter.x = 400;
+plotter.y = 50;
 generator.out.connect(plotter.in);
+
+var components = [ generator, plotter ];
 
 
 $(document).ready(function() {
@@ -482,6 +488,36 @@ function ComponentView() {
     this.div.addClass('component-view');
     this.div.selectable();
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
+
+    for (var i = 0; i < components.length; i++) {
+        var c = components[i];
+        c.div = mkdiv("component-" + c.name, "component", this.div);
+        for (var j = 0; j < c.ports.length; j++) {
+            var p = c.ports[j];
+            if (p.isOutput) {
+                if (c.outputPorts == null) {
+                    c.outputPorts = mkdiv("outputs-" + c.name, "component-outputs", c.div);
+                }
+                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPorts);
+                p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
+            } else {
+                if (c.inputPorts == null) {
+                    c.inputPorts = mkdiv("inputs-" + c.name, "component-inputs", c.div);
+                }
+                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "input-port", c.inputPorts);
+                p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "input-terminal", p.div);
+            }
+            p.div.label = $("<h5 class=\"port-label\">" + p.name + "</h5>");
+            p.div.label.appendTo(p.div);
+        }
+        c.div.css("width", "150px");
+        c.div.css("height", "80px");
+        c.div.css("left", c.x + "px");
+        c.div.css("top", c.y + "px");
+        c.div.draggable();
+        c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
+        c.labelBox.appendTo(c.div);
+    }
 }
 
 ComponentView.prototype = Object.create(View.prototype);
@@ -539,22 +575,30 @@ var datView;
 
 function init() {
     mainRenderView = new MainRenderView();
-    topLevelView.setCenter(mainRenderView);
-
     signalRenderView = new SignalRenderView();
-    topLevelView.setBottom(signalRenderView);
+    componentView = new ComponentView();
+
+    //topLevelView.setCenter(mainRenderView);
+    //topLevelView.setBottom(signalRenderView);
+
+    topLevelView.setCenter(componentView);
 
     datView = new DatView(300, -1);
     topLevelView.setRight(datView);
 }
 
+var renderMode = false;
+
 function animate() {
     requestAnimationFrame(animate);
 
     update();
-    mainRenderView.render();
-    signalRenderView.render();
-    mainRenderView.stats.update();
+
+    if (renderMode) {
+        mainRenderView.render();
+        signalRenderView.render();
+        mainRenderView.stats.update();
+    }
 }
 
 function update() {
