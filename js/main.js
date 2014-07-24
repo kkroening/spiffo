@@ -2,6 +2,7 @@ if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
 }
 
+
 function Unimplemented() {
     throw new Error("Unimplemented method");
 }
@@ -119,6 +120,8 @@ function Port(name, eventType, isOutput) {
     this.isOutput = isOutput;
     this.owner = null;
     this.connections = [];
+    this.div = null;
+    this.wirePath = null;
     if (isOutput) {
         this.event = eventType.create();
     } else {
@@ -173,6 +176,17 @@ Port.prototype.setEvent = function(event) {
         var connection = this.connections[i];
         connection.event = this.event;
     }
+}
+Port.prototype.getTerminalPosition = function(parent) {
+    var offset = this.div.terminal.offset();
+    offset.left += this.div.terminal.width()/2;
+    offset.top += this.div.terminal.height()/2;    
+    if (parent != null) {
+        var parentOffset = parent.offset();
+        offset.left -= parentOffset.left;
+        offset.top -= parentOffset.top;
+    }
+    return { x: offset.left, y : offset.top };
 }
 
 
@@ -376,7 +390,7 @@ var components = [ generator, plotter ];
 
 $(document).ready(function() {
     init();
-    animate();
+    //animate();
 });
 
 
@@ -483,29 +497,53 @@ SignalRenderView.prototype.render = function() {
 var signalRenderView;
 
 
+var circlez;
+
 function ComponentView() {
     View.call(this, -1, -1);
     this.div.addClass('component-view');
     this.div.selectable();
+    this.initialized = false;
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
+}
+
+ComponentView.prototype = Object.create(View.prototype);
+ComponentView.prototype.constructor = ComponentView;
+
+ComponentView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+    if (!this.initialized) {
+        this.init();
+    }
+}
+
+ComponentView.prototype.init = function() {
+    this.svg = $('<svg class="component-view-overlay"></svg>');
+    this.svg.appendTo(this.div);
+    this.d3svg = d3.select(this.svg.get(0));
+
+    //
+    // Create components and ports.
+    //
 
     for (var i = 0; i < components.length; i++) {
         var c = components[i];
         c.div = mkdiv("component-" + c.name, "component", this.div);
+        c.div.get(0).component = c;
         for (var j = 0; j < c.ports.length; j++) {
             var p = c.ports[j];
             if (p.isOutput) {
-                if (c.outputPorts == null) {
-                    c.outputPorts = mkdiv("outputs-" + c.name, "component-outputs", c.div);
+                if (c.outputPortsDiv == null) {
+                    c.outputPortsDiv = mkdiv("outputs-" + c.name, "component-outputs", c.div);
                 }
-                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPorts);
+                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPortsDiv);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
                 p.div.label = $("<h5 class=\"output-port-label\">" + p.name + "</h5>");
             } else {
-                if (c.inputPorts == null) {
-                    c.inputPorts = mkdiv("inputs-" + c.name, "component-inputs", c.div);
+                if (c.inputPortsDiv == null) {
+                    c.inputPortsDiv = mkdiv("inputs-" + c.name, "component-inputs", c.div);
                 }
-                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "input-port", c.inputPorts);
+                p.div = mkdiv("component-" + c.name + "-port-" + p.name, "input-port", c.inputPortsDiv);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "input-terminal", p.div);
                 p.div.label = $("<h5 class=\"input-port-label\">" + p.name + "</h5>");
             }
@@ -515,17 +553,52 @@ function ComponentView() {
         c.div.css("height", "80px");
         c.div.css("left", c.x + "px");
         c.div.css("top", c.y + "px");
-        c.div.draggable();
+        var that = this;
+        c.div.draggable({
+            drag: function(event, ui) {
+                var component = ui.helper.get(0).component;
+                for (var j = 0; j < component.ports.length; j++) {
+                    var p = component.ports[j];
+                    if (p.isOutput) {
+                        for (var k = 0; k < p.connections.length; k++) {
+                            var p2 = p.connections[k];
+                            that.updateWiring(p2, p);
+                        }
+                    } else if (p.connections.length != 0) {
+                        that.updateWiring(p, p.connections[0]);
+                    }
+                }
+            }
+        });
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
         c.labelBox.appendTo(c.div);
     }
+
+    this.updateAllWiring();
+    this.initialized = true;
 }
-
-ComponentView.prototype = Object.create(View.prototype);
-ComponentView.prototype.constructor = ComponentView;
-
-ComponentView.prototype.setSize = function(width, height) {
-    View.prototype.setSize.call(this, width, height);
+ComponentView.prototype.updateAllWiring = function() {
+    for (var i = 0; i < components.length; i++) {
+        var c = components[i];
+        for (var j = 0; j < c.ports.length; j++) {
+            var p = c.ports[j];
+            if (p.isOutput) {
+                for (k = 0; k < p.connections.length; k++) {
+                    this.updateWiring(p.connections[k], p);
+                }
+            }
+        }
+    }
+}
+ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
+    var pos1 = outputPort.getTerminalPosition(this.div);
+    var pos1b = { x: pos1.x + 60, y: pos1.y };
+    var pos2 = inputPort.getTerminalPosition(this.div);
+    var pos2b = { x: pos2.x - 60, y: pos2.y };
+    if (inputPort.wirePath == null) {
+        inputPort.wirePath = this.d3svg.append("path").classed("wire", true);
+    }
+    inputPort.wirePath.attr("d", "M" + pos1.x + "," + pos1.y + " C" + pos1b.x + "," + pos1b.y + " " + pos2b.x + "," + pos2b.y + " " + pos2.x + "," + pos2.y);
 }
 
 var componentView;
@@ -575,8 +648,8 @@ var datView;
 
 
 function init() {
-    mainRenderView = new MainRenderView();
-    signalRenderView = new SignalRenderView();
+    //mainRenderView = new MainRenderView();
+    //signalRenderView = new SignalRenderView();
     componentView = new ComponentView();
 
     //topLevelView.setCenter(mainRenderView);
