@@ -30,6 +30,7 @@ div.view {
 
 .component-view {
     background-color: gray;
+    overflow: auto;
 }
 
 .tlv-left {
