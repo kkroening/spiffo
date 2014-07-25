@@ -170,7 +170,7 @@ Port.prototype.disconnectAll = function() {
     }
 }
 Port.prototype.setEvent = function(event) {
-    if (!this.isOutput) { 
+    if (!this.isOutput) {
         throw new Error("Attempted to call setEvent on input port '" + this.name + "' (can only be called on output ports)");
     }
     this.event = event;
@@ -181,8 +181,8 @@ Port.prototype.setEvent = function(event) {
 }
 Port.prototype.getTerminalPosition = function(parent) {
     var offset = this.div.terminal.offset();
-    offset.left += this.div.terminal.width()/2;
-    offset.top += this.div.terminal.height()/2;    
+    offset.left += parent.scrollLeft() + this.div.terminal.width()/2;
+    offset.top += parent.scrollTop() + this.div.terminal.height()/2;
     if (parent != null) {
         var parentOffset = parent.offset();
         offset.left -= parentOffset.left;
@@ -448,22 +448,25 @@ Plotter.prototype.run = function(deltaTime) {
     }
 }
 
-var spacing_per_sin = 50;
+var spacing_per_sin = 150;
 
 var components = [];
 
 var generator = new Generator("generator");
+generator.desiredPosition = { x: 100, y: 550 };
 components.push(generator);
 
 var plotter = new Plotter("plotter");
-generator.desiredPosition = { x: 100, y: 10 };
-//plotter.desiredPosition = { x: 300, y: 10 };
+plotter.desiredPosition = { x: 500, y: 550 };
 components.push(plotter);
 
 
 var control_a1 = new GuiControl("a1");
 var control_a2 = new GuiControl("a2");
 var control_a3 = new GuiControl("a3");
+control_a1.desiredPosition = { x: 350, y: 20 + spacing_per_sin*0 };
+control_a2.desiredPosition = { x: 350, y: 20 + spacing_per_sin*1 };
+control_a3.desiredPosition = { x: 350, y: 20 + spacing_per_sin*2 };
 components.push(control_a1);
 components.push(control_a2);
 components.push(control_a3);
@@ -471,6 +474,9 @@ components.push(control_a3);
 var control_c1 = new GuiControl("c1");
 var control_c2 = new GuiControl("c2");
 var control_c3 = new GuiControl("c3");
+control_c1.desiredPosition = { x: 180, y: 60 + spacing_per_sin*0 };
+control_c2.desiredPosition = { x: 180, y: 60 + spacing_per_sin*1 };
+control_c3.desiredPosition = { x: 180, y: 60 + spacing_per_sin*2 };
 components.push(control_c1);
 components.push(control_c2);
 components.push(control_c3);
@@ -478,33 +484,43 @@ components.push(control_c3);
 var control_p1 = new GuiControl("p1");
 var control_p2 = new GuiControl("p2");
 var control_p3 = new GuiControl("p3");
-control_p1.desiredPosition = { x: 20, y: 50 };
-control_p2.desiredPosition = { x: 20, y: 50 + spacing_per_sin };
-control_p3.desiredPosition = { x: 20, y: 50 + spacing_per_sin*2 };
+control_p1.desiredPosition = { x: 20, y: 152 + spacing_per_sin*0 };
+control_p2.desiredPosition = { x: 20, y: 152 + spacing_per_sin*1 };
+control_p3.desiredPosition = { x: 20, y: 152 + spacing_per_sin*2 };
 components.push(control_p1);
 components.push(control_p2);
 components.push(control_p3);
 
+var sin1 = new Sinusoid("sin");
+var sin2 = new Sinusoid("sin");
+var sin3 = new Sinusoid("sin");
+sin1.desiredPosition = { x: 150, y: 125 + spacing_per_sin*0 };
+sin2.desiredPosition = { x: 150, y: 125 + spacing_per_sin*1 };
+sin3.desiredPosition = { x: 150, y: 125 + spacing_per_sin*2 };
+components.push(sin1);
+components.push(sin2);
+components.push(sin3);
+
 var multiplier1 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
 var multiplier2 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
 var multiplier3 = new Multiplier("mult", 3, new SequenceEventType(vector2EventType, 10));
+multiplier1.desiredPosition = { x: 550, y: 70 + spacing_per_sin*0 };
+multiplier2.desiredPosition = { x: 550, y: 70 + spacing_per_sin*1 };
+multiplier3.desiredPosition = { x: 550, y: 70 + spacing_per_sin*2 };
 components.push(multiplier1);
 components.push(multiplier2);
 components.push(multiplier3);
 
 var adder = new Adder("add", 3, new SequenceEventType(vector2EventType, 10));
+adder.desiredPosition = { x: 750, y: 192 };
 components.push(adder);
-
-var sin1 = new Sinusoid("sin1");
-var sin2 = new Sinusoid("sin2");
-var sin3 = new Sinusoid("sin3");
-components.push(sin1);
-components.push(sin2);
-components.push(sin3);
 
 var exp1 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
 var exp2 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
 var exp3 = new Exponentiator("exp", new SequenceEventType(vector2EventType, 10));
+exp1.desiredPosition = { x: 350, y: 80 + spacing_per_sin*0 };
+exp2.desiredPosition = { x: 350, y: 80 + spacing_per_sin*1 };
+exp3.desiredPosition = { x: 350, y: 80 + spacing_per_sin*2 };
 components.push(exp1);
 components.push(exp2);
 components.push(exp3);
@@ -837,7 +853,7 @@ function update() {
     updateParameters(deltaTime);
 
     k++;
-    
+
     splineObject.rotation.x = 0.1*Math.cos(Math.PI*2*k/213);
     splineObject.rotation.y = 0.1*Math.sin(Math.PI*2*k/200);
 }
