@@ -448,16 +448,16 @@ Plotter.prototype.run = function(deltaTime) {
     }
 }
 
+var spacing_per_sin = 50;
+
 var components = [];
 
 var generator = new Generator("generator");
 components.push(generator);
 
 var plotter = new Plotter("plotter");
-generator.x = 100;
-generator.y = 50;
-plotter.x = 400;
-plotter.y = 50;
+generator.desiredPosition = { x: 100, y: 10 };
+//plotter.desiredPosition = { x: 300, y: 10 };
 components.push(plotter);
 
 
@@ -478,6 +478,9 @@ components.push(control_c3);
 var control_p1 = new GuiControl("p1");
 var control_p2 = new GuiControl("p2");
 var control_p3 = new GuiControl("p3");
+control_p1.desiredPosition = { x: 20, y: 50 };
+control_p2.desiredPosition = { x: 20, y: 50 + spacing_per_sin };
+control_p3.desiredPosition = { x: 20, y: 50 + spacing_per_sin*2 };
 components.push(control_p1);
 components.push(control_p2);
 components.push(control_p3);
@@ -645,6 +648,7 @@ function ComponentView() {
     this.div.addClass('component-view');
     this.div.selectable();
     this.initialized = false;
+    this.desiredPosition = undefined;
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
 }
 
@@ -655,10 +659,14 @@ ComponentView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
     if (!this.initialized) {
         this.init();
+    } else {
+	this.updateAllWiring();
     }
 }
 
 ComponentView.prototype.init = function() {
+    var componentViewOffset = this.div.offset();
+
     this.svg = $('<svg class="component-view-overlay"></svg>');
     this.svg.appendTo(this.div);
     this.d3svg = d3.select(this.svg.get(0));
@@ -670,6 +678,13 @@ ComponentView.prototype.init = function() {
     for (var i = 0; i < components.length; i++) {
         var c = components[i];
         c.div = mkdiv("component-" + c.name, "component", this.div);
+	if (c.desiredPosition) {
+	    console.log(c.name);
+	    c.div.css("position", "absolute");
+	    console.log(c.div.position());
+	    c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
+	    console.log(c.div.position());
+	}
         c.div.get(0).component = c;
         for (var j = 0; j < c.ports.length; j++) {
             var p = c.ports[j];
@@ -690,8 +705,6 @@ ComponentView.prototype.init = function() {
             }
             p.div.label.appendTo(p.div);
         }
-        c.div.css("left", c.x + "px");
-        c.div.css("top", c.y + "px");
         var that = this;
         c.div.draggable({
             drag: function(event, ui) {
