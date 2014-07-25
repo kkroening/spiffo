@@ -5,7 +5,7 @@ This is a simple demo of signal visualization using Three.js.
 
 Spiffo animates a fractal spirograph of exponentially decaying sinusoids with varying frequency and phase, interfering with one another in the complex plane. The result is a single continuous curve that exhibits fascinating visual patterns.
 
-Live demo: http://kkroening.github.io/spiffo/
+**Live demo**: http://kkroening.github.io/spiffo/
 
 ### Using Spiffo
 Spiffo includes an on-screen user interface that allows the user to tweak various parameters:
