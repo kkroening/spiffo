@@ -3,11 +3,20 @@ if (!Detector.webgl) {
 }
 
 
+/** Throws "Unimplemented method" error.
+ *
+ * @function
+ * @throws Error
+ */
 function Unimplemented() {
     throw new Error("Unimplemented method");
 }
 
 
+/** A vector with configurable size.
+ *
+ * @class
+ */
 function Vector(size) {
     EventType.call(this);
     this.x = [];
@@ -17,24 +26,42 @@ function Vector(size) {
 }
 
 
+/** A 2-dimensional vector.
+ *
+ * @class
+ * @extends Vector
+ */
 function Vector2() {
     Vector.call(this, 2);
 }
 Vector2.prototype = Vector.prototype;
 
 
+/** A 3-dimensional vector.
+ *
+ * @class
+ */
 function Vector3() {
     Vector.call(this, 3);
 }
 Vector3.prototype = Vector.prototype;
 
 
+/** A 4-dimensional vector.
+ *
+ * @class
+ */
 function Vector4() {
     Vector.call(this, 4);
 }
 Vector4.prototype = Vector.prototype;
 
 
+/** A complex number, consisting of a real portion and an imaginary portion.
+ *
+ * @class
+ * @extends Vector2
+ */
 function ComplexNumber() {
     Vector2.call(this);
 }
@@ -47,6 +74,12 @@ function newComplexNumber(re, im) {
 }
 
 
+/** An indexed set of events.
+ *
+ * @class
+ * @param eventType <{@link EventType}> Type of event to contain.
+ * @param size Number of events (length of sequence).
+ */
 function Sequence(eventType, size) {
     this.eventType = eventType;
     this.size = size;
@@ -59,6 +92,11 @@ function Sequence(eventType, size) {
 Sequence.prototype = Object.create(EventType.prototype);
 
 
+/** Type information for an event.
+ *
+ * @abstract
+ * @class
+ */
 function EventType() {
 }
 EventType.prototype.create = Unimplemented;
@@ -656,8 +694,6 @@ SignalRenderView.prototype.render = function() {
 
 var signalRenderView;
 
-
-var circlez;
 
 function ComponentView() {
     View.call(this, -1, -1);
