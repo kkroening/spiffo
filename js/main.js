@@ -349,6 +349,7 @@ function Component(name) {
     this.name = name;
     this.ports = [];
     this.attrs = [];
+    this.desiredPosition = undefined;
     this.div = null;
 }
 
@@ -973,7 +974,7 @@ function ComponentView() {
     this.div.addClass('component-view');
     //this.div.selectable();
     this.initialized = false;
-    this.desiredPosition = undefined;
+    this.zIndex = 0;
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
 }
 
@@ -1044,6 +1045,10 @@ ComponentView.prototype.init = function() {
         }
         var that = this;
         c.div.draggable({
+            start: function(event, ui) {
+                that.zIndex++;
+                ui.helper.css('z-index', that.zIndex);
+            },
             drag: function(event, ui) {
                 var component = ui.helper.get(0).component;
                 for (var j = 0; j < component.ports.length; j++) {
