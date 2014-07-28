@@ -979,7 +979,37 @@ function NavigatorView() {
 NavigatorView.prototype = Object.create(View.prototype);
 NavigatorView.prototype.constructor = NavigatorView;
 
-var componentView;
+
+function AttributeView() {
+    View.call(this, 300, -1);
+    this.div.addClass("attribute-view");
+    $('<div class="view-header"><p class="view-title-text">Attributes</p></div>').appendTo(this.div);
+    this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
+    this.attributesDiv = mkdiv("attributes", "attribute-list background2", this.viewBody);
+    //this.selComponentName = $("<h1></h1>").appendTo(this.attributesDiv);
+    //this.selComponentName.text("foo");
+}
+
+AttributeView.prototype = Object.create(View.prototype);
+AttributeView.prototype.constructor = AttributeView;
+
+AttributeView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+}
+
+AttributeView.prototype.getComponent = function() {
+    return this.component;
+}
+
+AttributeView.prototype.setComponent = function(component) {
+    this.component = component;
+    if (component) {
+        //this.selTitle.text(component.name + " Attributes");
+    } else {
+        //this.selTitle.text("Attributes");
+    }
+}
+
 
 /** Component viewer.
  *
