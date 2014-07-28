@@ -79,8 +79,8 @@ function newComplexNumber(re, im) {
 /** An indexed set of events.
  *
  * @class
- * @param eventType <{@link EventType}> Type of event to contain.
- * @param size Number of events (length of sequence).
+ * @param {EventType} eventType <{@link EventType}> Type of event to contain.
+ * @param {number} size Number of events (length of sequence).
  */
 function Sequence(eventType, size) {
     this.eventType = eventType;
@@ -296,6 +296,8 @@ Port.prototype.disconnectAll = function() {
         this.connections[i].disconnect(this);
     }
 }
+
+/** @func */
 Port.prototype.setEvent = function(event) {
     if (!this.isOutput) {
         throw new Error("Attempted to call setEvent on input port '" + this.name + "' (can only be called on output ports)");
@@ -341,10 +343,13 @@ Port.prototype.getTerminalPosition = function(parent) {
  * On the model side, a Component contains a {@link Port} list.
  *
  * @class
+ * @param {string} name Component name.
  */
 function Component(name) {
     this.name = name;
     this.ports = [];
+    this.attrs = [];
+    this.div = null;
 }
 
 /** Add a port.
