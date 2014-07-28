@@ -3,7 +3,6 @@ body {
     font-family: Monospace;
     font-size: 11px;
     text-align: center;
-    font-weight: bold;
 
     background-color: #000000;
     margin: 0px;
@@ -30,7 +29,7 @@ div.view {
 
 .component-view {
     background-color: gray;
-    overflow: auto;
+    overflow: scroll;
 }
 
 .tlv-left {
@@ -98,6 +97,7 @@ div.view {
     border-color: black;
     border-radius: 3px;
     margin: 10px;
+    overflow: auto;
 }
 
 .component .ui-selecting {
@@ -110,9 +110,8 @@ div.view {
 
 .component-label {
     text-align: center;
-    color: black;
-    float: left;
     margin: 20px;
+    color: black;
 }
 
 .input-port {
@@ -124,13 +123,11 @@ div.view {
 }
 
 .component-inputs {
-    float: left;
     margin: 4px;
     vertical-align: middle;
 }
 
 .component-outputs {
-    float: right;
     margin: 4px;
     vertical-align: middle;
 }
@@ -158,17 +155,13 @@ div.view {
 }
 
 .input-port-label {
-    color: black;
+    color: gray;
     margin-left: 15px;
 }
 
 .output-port-label {
-    color: black;
+    color: gray;
     margin-right: 15px;
-}
-
-.component-label {
-    color: black;
 }
 
 .component-view-overlay {

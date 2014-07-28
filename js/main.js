@@ -1008,6 +1008,16 @@ ComponentView.prototype.init = function() {
     for (var i = 0; i < components.length; i++) {
         var c = components[i];
         c.div = mkdiv("component-" + c.name, "component", this.div);
+        var table = $("<table></table>");
+        table.appendTo(c.div);
+        var tr = $("<tr></tr>");
+        tr.appendTo(table);
+        var td1 = $("<td></td>");
+        var td2 = $("<td></td>");
+        var td3 = $("<td></td>");
+        td1.appendTo(tr);
+        td2.appendTo(tr);
+        td3.appendTo(tr);
 	if (c.desiredPosition) {
 	    c.div.css("position", "absolute");
 	    c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
@@ -1017,14 +1027,14 @@ ComponentView.prototype.init = function() {
             var p = c.ports[j];
             if (p.isOutput) {
                 if (c.outputPortsDiv == null) {
-                    c.outputPortsDiv = mkdiv("outputs-" + c.name, "component-outputs", c.div);
+                    c.outputPortsDiv = mkdiv("outputs-" + c.name, "component-outputs", td3);
                 }
                 p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPortsDiv);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
                 p.div.label = $("<h5 class=\"output-port-label\">" + p.name + "</h5>");
             } else {
                 if (c.inputPortsDiv == null) {
-                    c.inputPortsDiv = mkdiv("inputs-" + c.name, "component-inputs", c.div);
+                    c.inputPortsDiv = mkdiv("inputs-" + c.name, "component-inputs", td1);
                 }
                 p.div = mkdiv("component-" + c.name + "-port-" + p.name, "input-port", c.inputPortsDiv);
                 p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "input-terminal", p.div);
@@ -1066,7 +1076,7 @@ ComponentView.prototype.init = function() {
         });
         c.div.selectable();
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
-        c.labelBox.appendTo(c.div);
+        c.labelBox.appendTo(td2);
     }
 
     this.updateAllWiring();
