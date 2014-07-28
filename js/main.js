@@ -3,11 +3,20 @@ if (!Detector.webgl) {
 }
 
 
+/** Throws "Unimplemented method" error.
+ *
+ * @function
+ * @throws Error
+ */
 function Unimplemented() {
     throw new Error("Unimplemented method");
 }
 
 
+/** A vector with configurable size.
+ *
+ * @class
+ */
 function Vector(size) {
     EventType.call(this);
     this.x = [];
@@ -17,24 +26,44 @@ function Vector(size) {
 }
 
 
+/** A 2-dimensional vector.
+ *
+ * @class
+ * @extends Vector
+ */
 function Vector2() {
     Vector.call(this, 2);
 }
 Vector2.prototype = Vector.prototype;
 
 
+/** A 3-dimensional vector.
+ *
+ * @class
+ * @extends Vector
+ */
 function Vector3() {
     Vector.call(this, 3);
 }
 Vector3.prototype = Vector.prototype;
 
 
+/** A 4-dimensional vector.
+ *
+ * @class
+ * @extends Vector
+ */
 function Vector4() {
     Vector.call(this, 4);
 }
 Vector4.prototype = Vector.prototype;
 
 
+/** A complex number, consisting of a real portion and an imaginary portion.
+ *
+ * @class
+ * @extends Vector2
+ */
 function ComplexNumber() {
     Vector2.call(this);
 }
@@ -47,6 +76,12 @@ function newComplexNumber(re, im) {
 }
 
 
+/** An indexed set of events.
+ *
+ * @class
+ * @param eventType <{@link EventType}> Type of event to contain.
+ * @param size Number of events (length of sequence).
+ */
 function Sequence(eventType, size) {
     this.eventType = eventType;
     this.size = size;
@@ -59,17 +94,35 @@ function Sequence(eventType, size) {
 Sequence.prototype = Object.create(EventType.prototype);
 
 
+/** Type information for an event.
+ *
+ * @abstract
+ * @class
+ */
 function EventType() {
 }
 EventType.prototype.create = Unimplemented;
 
 
+/** Type info for events that are undefined.
+ *
+ * @class
+ * @extends EventType
+ */
 function DummyEventType() {
     EventType.call(this);
 }
 DummyEventType.prototype = Object.create(EventType.prototype);
+NumberEventType.prototype.create = function() {
+    return undefined;
+}
 
 
+/** Type information for an event that is a standard Javascript Number.
+ *
+ * @class
+ * @extends EventType
+ */
 function NumberEventType() {
     EventType.call(this);
 }
@@ -80,6 +133,11 @@ NumberEventType.prototype.create = function() {
 var numberEventType = new NumberEventType();
 
 
+/** Type information for a {@link Vector} event.
+ *
+ * @class
+ * @extends EventType
+ */
 function VectorEventType(size) {
     EventType.call(this);
     this.size = size;
@@ -90,11 +148,30 @@ VectorEventType.prototype.create = function() {
 }
 
 
+/** Static instance of {@link VectorEventType(2)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector2EventType = new VectorEventType(2);
+
+/** Static instance of {@link VectorEventType(3)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector3EventType = new VectorEventType(3);
+
+/** Static instance of {@link VectorEventType(4)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector4EventType = new VectorEventType(4);
 
 
+/** Type information for a complex number event.
+ *
+ * @class
+ * @extends EventType
+ */
 function ComplexEventType() {
     EventType.call(this);
 }
@@ -105,6 +182,11 @@ ComplexEventType.prototype.create = function() {
 var complexEventType = new ComplexEventType();
 
 
+/** Type information for a sequence event.
+ *
+ * @class
+ * @extends EventType
+ */
 function SequenceEventType(eventType, defaultSize) {
     EventType.call(this);
     this.eventType = eventType;
@@ -116,6 +198,10 @@ SequenceEventType.prototype.create = function() {
 }
 
 
+/** An input or output of a component.
+ *
+ * @class
+ */
 function Port(name, eventType, isOutput) {
     this.name = name;
     this.eventType = eventType;
@@ -130,6 +216,16 @@ function Port(name, eventType, isOutput) {
         this.event = null;
     }
 }
+
+/** Connect one port to another.
+ *
+ * This throws an Error in several scenarios:
+ *  - Direction mismatch: an input port can only be connected to an output port, or vice-versa, so connecting an output to an output or an input to an input results in an Error being thrown.
+ *  - Attempting to make multiple connections to an input port: an input port can only have one connection, so if the input port already has a connection an Error is thrown.
+ *
+ * @func
+ * @throws Error
+ */
 Port.prototype.connect = function(other) {
     for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i] == other) {
@@ -139,18 +235,35 @@ Port.prototype.connect = function(other) {
     if (this.isOutput) {
         if (other.isOutput) {
             throw new Error("Can't connect output port '" + this.name + "' to output port '" + other.name + "'");
-        }
+        } else if (this.connections.length != 0) {
+	    throw new Error("Can't connect output port '" + this.name + "' to input port '" + other.name + "' because the input port is already connected to '" + other.connections[0].name + "'");
+	}
         other.event = this.event;
     } else {
         if (other.isInput) {
             throw new Error("Can't connect input port '" + this.name + "' to input port '" + other.name + "'");
-        }
+        } else if (other.connections.length != 0) {
+	    throw new Error("Can't connect input port '" + this.name + "' to output port '" + other.name + "' because the input port is already connected to '" + this.connections[0].name + "'");
+	}
         this.event = other.event;
     }
     this.connections.push(other);
     other.connections.push(this);
 }
+
+/** Disconnect a port from this port.
+ *
+ * An Error is thrown if the specified port is falsey or not connected to this port.
+ *
+ * @func
+ * @throws Error
+ */
 Port.prototype.disconnect = function(other) {
+    if (!other) {
+	throw new Error("Attempted to disconnect invalid/undefined port from port '" + this.name + "'");
+    } else if (this.connections.length == 0) {
+	return;
+    }
     for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i] == other) {
             this.connections.splice(i, i);
@@ -158,11 +271,25 @@ Port.prototype.disconnect = function(other) {
             if (!this.isOutput) {
                 this.event = null;
             }
-            break;
+	    return;
         }
     }
+    throw new Error("Can't disconnect port '" + other.name + "' from port '" + this.name + "' because port '" + other.name + "' is not connected");
 }
+
+/** Disconnect all ports from this port.
+ *
+ * Note: this should never throw an Error unless the port ends up in an invalid state that causes the 'disconnect' method to throw an Error.
+ *
+ * @func
+ * @throws Error
+ */
 Port.prototype.disconnectAll = function() {
+    //
+    // FIXME? surround disconnect in a try/catch block to not propagate errors,
+    // so that the 'throws Error' clause can be removed (see description in
+    // doc above).
+    //
     var connections = this.connections;
     this.connections = [];
     for (var i = 0; i < this.connections.length; i++) {
@@ -179,7 +306,20 @@ Port.prototype.setEvent = function(event) {
         connection.event = this.event;
     }
 }
+
+/** Calculate the position of the terminal div for this port.
+ *
+ * The terminal's location is determined relative to the specified parent, which should generally be the {@link ComponentView} that the component is displayed in.
+ *
+ * Throws an Error if the port's div has not yet been created, or the div has an invalid location.
+ *
+ * @func
+ * @throws Error
+ */
 Port.prototype.getTerminalPosition = function(parent) {
+    if (!this.div) {
+
+    }
     var offset = this.div.terminal.offset();
     offset.left += parent.scrollLeft() + this.div.terminal.width()/2;
     offset.top += parent.scrollTop() + this.div.terminal.height()/2;
@@ -192,10 +332,28 @@ Port.prototype.getTerminalPosition = function(parent) {
 }
 
 
+/** Component class.
+ *
+ * This represents both the model and the view for a Component (at some point the model and view may be decoupled so that the model may be moved to a backend while the JS-version is just a proxy that's synchronized via a websocket).
+ *
+ * On the view side, a Component has a div that belongs in a ComponentView, along with related data, selectors, methods for calculating display parameters (e.g., getPosition), etc.
+ *
+ * On the model side, a Component contains a {@link Port} list.
+ *
+ * @class
+ */
 function Component(name) {
     this.name = name;
     this.ports = [];
 }
+
+/** Add a port.
+ *
+ * A Port can only be added if it doesn't already have an owner and the new owner doesn't have a port with the same name; otherwise an Error is thrown.
+ *
+ * @func
+ * @throws Error
+ */
 Component.prototype.addPort = function(port) {
     if (port.owner) {
         throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
@@ -209,18 +367,32 @@ Component.prototype.addPort = function(port) {
     port.owner = this;
     this.ports.push(port);
 }
+
+/** Do work on behalf of the Component after all input event(s) have arrived in order to produce appropriate output event(s).
+ * @func
+ * @abstract
+ */
 Component.prototype.run = Unimplemented;
 
 
+// FIXME: move these into MainRenderView.
 var WIDTH, HEIGHT;
 
+/** @var {number} */
 var k = 0;
+/** @var {THREE.Object3D} */
 var splineObject;
+/** @var {THREE.Object3D} */
 var signalObject;
 
+/** @var {number} */
 var lastTime = Date.now();
 
 
+/** Parameters that can be varied to control the {@link Plotter} and optionally be connected to the GUI controls.
+ *
+ * @var
+ */
 var params = {
     //  - a1,a2 - amplitude; higher values equal bigger waves.
     //
@@ -295,16 +467,34 @@ var params = {
     showSignal: true
 };
 
+
+/** A {@link Component} that outputs the state of a corresponding GUI control.
+ *
+ * @class
+ * @extends Component
+ */
 function GuiControl(name) {
     Component.call(this, name);
     this.out = new Port("out", numberEventType, true);
     Component.prototype.addPort.call(this, this.out);
 }
+
 GuiControl.prototype = Object.create(Component.prototype);
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 GuiControl.prototype.run = function(deltaTime) {
+    // TODO: implement.
 }
 
 
+/** A {@link Component} that outputs a sinusoidal @{link Sequence}.
+ *
+ * @class
+ * @extends Component
+ */
 function Sinusoid(name) {
     Component.call(this, name);
     this.freq = new Port("freq", numberEventType, false);
@@ -315,9 +505,22 @@ function Sinusoid(name) {
     Component.prototype.addPort.call(this, this.out);
 }
 Sinusoid.prototype = Object.create(Component.prototype);
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Sinusoid.prototype.run = function(deltaTime) {
 }
 
+/** A {@link Component} that outputs the sum of all of its inputs.
+ *
+ * @class
+ * @extends Component
+ * @param {string} name The name of the Component.
+ * @param {number} numInputs Number of input ports.
+ * @param {EventType} eventType Type of events to send/receive.
+ */
 function Adder(name, numInputs, eventType) {
     Component.call(this, name);
     this.eventType = eventType;
@@ -325,6 +528,11 @@ function Adder(name, numInputs, eventType) {
     this.out = new Port("out", eventType, true);
     Component.prototype.addPort.call(this, this.out);
 }
+
+/** Set the number of input ports.
+ *
+ * @func
+ */
 Adder.prototype.setNumInputs = function(numInputs) {
     // FIXME: allow setNumPorts to be called post-init.
     this.in = [];
@@ -333,9 +541,22 @@ Adder.prototype.setNumInputs = function(numInputs) {
         Component.prototype.addPort.call(this, this.in[i]);
     }
 }
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Adder.prototype.run = function(deltaTime) {
 }
 
+/** A {@link Component} that multiplies all of its inputs and produces the product as the output.
+ *
+ * @class
+ * @extends Component
+ * @param {string} name The name of the Component.
+ * @param {number} numInputs Number of input ports.
+ * @param {EventType} eventType Type of events to send/receive.
+ */
 function Multiplier(name, numInputs, eventType) {
     Component.call(this, name);
     this.eventType = eventType;
@@ -351,9 +572,20 @@ Multiplier.prototype.setNumInputs = function(numInputs) {
         Component.prototype.addPort.call(this, this.in[i]);
     }
 }
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Multiplier.prototype.run = function(deltaTime) {
 }
 
+
+/** A {@link Component} that outputs the exponent (exp) of its input.
+ *
+ * @class
+ * @extends Component
+ */
 function Exponentiator(name, eventType) {
     Component.call(this, name);
     this.eventType = eventType;
@@ -362,16 +594,33 @@ function Exponentiator(name, eventType) {
     Component.prototype.addPort.call(this, this.in);
     Component.prototype.addPort.call(this, this.out);
 }
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Exponentiator.prototype.run = function(deltaTime) {
 }
 
 
+/** Temporary {@link Component} to produce data to be fed to the {@link Plotter}.
+ *
+ * This will be phased out incrementally
+ *
+ * @class
+ * @extends Component
+ */
 function Generator(name) {
     Component.call(this, name);
     this.out = new Port("out", new SequenceEventType(vector3EventType, 10), true);
     Component.prototype.addPort.call(this, this.out);
 }
 Generator.prototype = Object.create(Component.prototype);
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Generator.prototype.run = function(deltaTime) {
     var event = this.out.event;
     var length = Math.floor(params.cycles * params.resolution);
@@ -398,12 +647,23 @@ Generator.prototype.run = function(deltaTime) {
 }
 
 
+/** A {@link Component} that renders its input {@link Sequence} through an associated {@link MainRenderView}.
+ *
+ * @class
+ * @extends Component
+ * @param {string} name Component name
+ */
 function Plotter(name) {
     Component.call(this, name);
     this.in = new Port("in", new SequenceEventType(vector3EventType, 10), false);
     Component.prototype.addPort.call(this, this.in);
 }
 Plotter.prototype = Object.create(Component.prototype);
+
+/** Implements {@link Component}.run().
+ *
+ * @func
+ */
 Plotter.prototype.run = function(deltaTime) {
     if (splineObject != null) {
         mainRenderView.scene.remove(splineObject);
@@ -448,9 +708,16 @@ Plotter.prototype.run = function(deltaTime) {
     }
 }
 
-var spacing_per_sin = 150;
-
+/** List of top-level {@link Component}s.
+ *
+ * TODO: replace with more general Container type.
+ *
+ * @var {array} 
+ */
 var components = [];
+
+
+var spacing_per_sin = 150;
 
 var generator = new Generator("generator");
 generator.desiredPosition = { x: 100, y: 550 };
@@ -554,10 +821,10 @@ $(document).ready(function() {
 });
 
 
-//
-// updateParameters: called after each frame to continuously update the main
-// parameters.
-//
+/** called after each frame to continuously update the main parameters.
+ *
+ * @func
+ */
 function updateParameters(deltaTime) {
     params.w1 += params.dw1*deltaTime;
     if (params.w1 > params.max_freq) {
@@ -585,12 +852,23 @@ function updateParameters(deltaTime) {
     params.p3 += params.dp3 * deltaTime;
 }
 
+/** Shuttles events between {@link Component}s and executes their 'run' methods in the proper order.
+ *
+ * @func
+ */
 function runScheduler(deltaTime) {
     generator.run(deltaTime);
     plotter.run(deltaTime);
 }
 
-function MainRenderView() {
+
+/** A THREE.js-based {@link View} that renders on behalf of a {@link Plotter}.
+ *
+ * @class
+ * @extends View 
+ * @param {Plotter} plotter
+ */
+function MainRenderView(plotter) {
     View.call(this, -1, -1);
     this.camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
     this.camera.position.z = 150;
@@ -605,11 +883,16 @@ function MainRenderView() {
     this.stats.domElement.style.position = 'absolute';
     this.stats.domElement.style.top = '0px';
     this.div.append(this.stats.domElement);
+    this.plotter = plotter;
 }
 
 MainRenderView.prototype = Object.create(View.prototype);
 MainRenderView.prototype.constructor = MainRenderView;
 
+/** Implements {@link View}.setSize().
+ *
+ * @func
+ */
 MainRenderView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
     WIDTH = width;
@@ -619,14 +902,23 @@ MainRenderView.prototype.setSize = function(width, height) {
     this.renderer.setSize(width, height);
 }
 
+/** Re-render main view.
+ *
+ * @func
+ */
 MainRenderView.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 }
 
 var mainRenderView;
 
-
-function SignalRenderView() {
+/** A view for plotting the input signal of a corresponding {@link Plotter}.
+ *
+ * @class
+ * @extends Component
+ * @param {Plotter} plotter
+ */
+function SignalRenderView(plotter) {
     View.call(this, -1, 200);
     this.camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 1, 2000);
     this.camera.position.z = 150;
@@ -637,11 +929,16 @@ function SignalRenderView() {
     this.renderer.setClearColor(0x111111, 1);
     this.renderer.setSize(WIDTH, HEIGHT);
     this.div.append(this.renderer.domElement);
+    this.plotter = plotter;
 }
 
 SignalRenderView.prototype = Object.create(View.prototype);
 SignalRenderView.prototype.constructor = SignalRenderView;
 
+/** Implements {@link View}.setSize().
+ *
+ * @func
+ */
 SignalRenderView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
     this.camera.aspect = width / height;
@@ -649,6 +946,10 @@ SignalRenderView.prototype.setSize = function(width, height) {
     this.renderer.setSize(width, height);
 }
 
+/** Re-render signal view.
+ *
+ * @func
+ */
 SignalRenderView.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 }
@@ -657,8 +958,11 @@ SignalRenderView.prototype.render = function() {
 var signalRenderView;
 
 
-var circlez;
-
+/** Component viewer.
+ *
+ * @class
+ * @extends View
+ */
 function ComponentView() {
     View.call(this, -1, -1);
     this.div.addClass('component-view');
@@ -671,6 +975,10 @@ function ComponentView() {
 ComponentView.prototype = Object.create(View.prototype);
 ComponentView.prototype.constructor = ComponentView;
 
+/** Implements {@link View}.setSize().
+ *
+ * @func
+ */
 ComponentView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
     if (!this.initialized) {
@@ -680,6 +988,7 @@ ComponentView.prototype.setSize = function(width, height) {
     }
 }
 
+/** @func */
 ComponentView.prototype.init = function() {
     var componentViewOffset = this.div.offset();
 
@@ -695,11 +1004,8 @@ ComponentView.prototype.init = function() {
         var c = components[i];
         c.div = mkdiv("component-" + c.name, "component", this.div);
 	if (c.desiredPosition) {
-	    console.log(c.name);
 	    c.div.css("position", "absolute");
-	    console.log(c.div.position());
 	    c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
-	    console.log(c.div.position());
 	}
         c.div.get(0).component = c;
         for (var j = 0; j < c.ports.length; j++) {
@@ -736,7 +1042,22 @@ ComponentView.prototype.init = function() {
                         that.updateWiring(p, p.connections[0]);
                     }
                 }
-            }
+            },
+	    stop: function(event, ui) {
+		//this.drag(event, ui);
+                var component = ui.helper.get(0).component;
+                for (var j = 0; j < component.ports.length; j++) {
+                    var p = component.ports[j];
+                    if (p.isOutput) {
+                        for (var k = 0; k < p.connections.length; k++) {
+                            var p2 = p.connections[k];
+                            that.updateWiring(p2, p);
+                        }
+                    } else if (p.connections.length != 0) {
+                        that.updateWiring(p, p.connections[0]);
+                    }
+                }
+	    }
         });
         c.div.selectable();
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
@@ -746,6 +1067,15 @@ ComponentView.prototype.init = function() {
     this.updateAllWiring();
     this.initialized = true;
 }
+
+/** Adjust or initialize wire overlays.
+ *
+ * This gets called during initialization of the {@link ComponentView},
+ * whenever the {@link ComponentView} is resized, or when a different
+ * {@link Container} is viewed.
+ *
+ * @func
+ */
 ComponentView.prototype.updateAllWiring = function() {
     for (var i = 0; i < components.length; i++) {
         var c = components[i];
@@ -759,6 +1089,11 @@ ComponentView.prototype.updateAllWiring = function() {
         }
     }
 }
+
+/** Adjust the wire overlays for a single {@link Component}.
+ *
+ * @func
+ */
 ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
     var pos1 = outputPort.getTerminalPosition(this.div);
     var pos1b = { x: pos1.x + 60, y: pos1.y };
@@ -772,7 +1107,13 @@ ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
 
 var componentView;
 
-
+/** A view to represent the top-level controls for the {@link params}.
+ *
+ * @class
+ * @extends view
+ * @param {number} width Width of view
+ * @param {number} height Height of view
+ */
 function DatView(width, height) {
     View.call(this, width, height);
 
@@ -808,6 +1149,10 @@ function DatView(width, height) {
 DatView.prototype = Object.create(View.prototype);
 DatView.prototype.constructor = DatView;
 
+/** Implements {@link View}.setSize().
+ *
+ * @func
+ */
 DatView.prototype.setSize = function(width, height) {
     View.prototype.setSize.call(this, width, height);
     this.gui.width = width;
@@ -817,8 +1162,8 @@ var datView;
 
 
 function init() {
-    //mainRenderView = new MainRenderView();
-    //signalRenderView = new SignalRenderView();
+    //mainRenderView = new MainRenderView(plotter);
+    //signalRenderView = new SignalRenderView(plotter);
     componentView = new ComponentView();
 
     //topLevelView.setCenter(mainRenderView);
@@ -832,6 +1177,10 @@ function init() {
 
 var renderMode = false;
 
+/** Re-render display and call {@link update}().
+ *
+ * @func
+ */
 function animate() {
     requestAnimationFrame(animate);
 
@@ -844,6 +1193,10 @@ function animate() {
     }
 }
 
+/** Update state to animate display.
+ *
+ * @func
+ */
 function update() {
     var nextTime = Date.now();
     var realDeltaTime = (nextTime - lastTime)*0.001;

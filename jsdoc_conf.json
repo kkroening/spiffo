@@ -1,0 +1,10 @@
+{
+    "templates": {
+	"systemName": "spiffo",
+	"theme": "journal",
+	"linenums": true,
+	"inverseNav": true,
+	"outputSourceFiles": true,
+	"outputSourcePath": true
+    }
+}
