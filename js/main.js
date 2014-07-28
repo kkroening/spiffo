@@ -790,11 +790,8 @@ ComponentView.prototype.init = function() {
         var c = components[i];
         c.div = mkdiv("component-" + c.name, "component", this.div);
 	if (c.desiredPosition) {
-	    console.log(c.name);
 	    c.div.css("position", "absolute");
-	    console.log(c.div.position());
 	    c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
-	    console.log(c.div.position());
 	}
         c.div.get(0).component = c;
         for (var j = 0; j < c.ports.length; j++) {
@@ -831,7 +828,22 @@ ComponentView.prototype.init = function() {
                         that.updateWiring(p, p.connections[0]);
                     }
                 }
-            }
+            },
+	    stop: function(event, ui) {
+		//this.drag(event, ui);
+                var component = ui.helper.get(0).component;
+                for (var j = 0; j < component.ports.length; j++) {
+                    var p = component.ports[j];
+                    if (p.isOutput) {
+                        for (var k = 0; k < p.connections.length; k++) {
+                            var p2 = p.connections[k];
+                            that.updateWiring(p2, p);
+                        }
+                    } else if (p.connections.length != 0) {
+                        that.updateWiring(p, p.connections[0]);
+                    }
+                }
+	    }
         });
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
         c.labelBox.appendTo(c.div);
