@@ -1024,8 +1024,8 @@ ComponentView.prototype.init = function() {
             c.div.mousedown(function(event) {
                 if (!event.metaKey) {
                     that.unselectAll();
+                    attributeView.setComponent(c);
                 } else {
-                    // TODO: update attribute view.
                 }
                 c.div.addClass('ui-selected');
                 $('*', c.div).addClass('ui-selected');
@@ -1250,7 +1250,6 @@ DatView.prototype.setSize = function(width, height) {
 
 var datView;
 
-
 function init() {
     //mainRenderView = new MainRenderView(plotter);
     //signalRenderView = new SignalRenderView(plotter);
@@ -1261,8 +1260,11 @@ function init() {
 
     topLevelView.setCenter(componentView);
 
+    attributeView = new AttributeView();
+
     datView = new DatView(300, -1);
-    topLevelView.setRight(datView);
+    //topLevelView.setRight(datView);
+    topLevelView.setRight(attributeView);
 }
 
 var renderMode = false;
