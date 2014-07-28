@@ -40,6 +40,7 @@ Vector2.prototype = Vector.prototype;
 /** A 3-dimensional vector.
  *
  * @class
+ * @extends Vector
  */
 function Vector3() {
     Vector.call(this, 3);
@@ -50,6 +51,7 @@ Vector3.prototype = Vector.prototype;
 /** A 4-dimensional vector.
  *
  * @class
+ * @extends Vector
  */
 function Vector4() {
     Vector.call(this, 4);
@@ -102,12 +104,25 @@ function EventType() {
 EventType.prototype.create = Unimplemented;
 
 
+/** Type info for events that are undefined.
+ *
+ * @class
+ * @extends EventType
+ */
 function DummyEventType() {
     EventType.call(this);
 }
 DummyEventType.prototype = Object.create(EventType.prototype);
+NumberEventType.prototype.create = function() {
+    return undefined;
+}
 
 
+/** Type information for an event that is a standard Javascript Number.
+ *
+ * @class
+ * @extends EventType
+ */
 function NumberEventType() {
     EventType.call(this);
 }
@@ -118,6 +133,11 @@ NumberEventType.prototype.create = function() {
 var numberEventType = new NumberEventType();
 
 
+/** Type information for a {@link Vector} event.
+ *
+ * @class
+ * @extends EventType
+ */
 function VectorEventType(size) {
     EventType.call(this);
     this.size = size;
@@ -128,11 +148,30 @@ VectorEventType.prototype.create = function() {
 }
 
 
+/** Static instance of {@link VectorEventType(2)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector2EventType = new VectorEventType(2);
+
+/** Static instance of {@link VectorEventType(3)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector3EventType = new VectorEventType(3);
+
+/** Static instance of {@link VectorEventType(4)}.
+ *
+ * @const {VectorEventType}
+ */
 var vector4EventType = new VectorEventType(4);
 
 
+/** Type information for a complex number event.
+ *
+ * @class
+ * @extends EventType
+ */
 function ComplexEventType() {
     EventType.call(this);
 }
@@ -143,6 +182,11 @@ ComplexEventType.prototype.create = function() {
 var complexEventType = new ComplexEventType();
 
 
+/** Type information for a sequence event.
+ *
+ * @class
+ * @extends EventType
+ */
 function SequenceEventType(eventType, defaultSize) {
     EventType.call(this);
     this.eventType = eventType;
@@ -154,6 +198,10 @@ SequenceEventType.prototype.create = function() {
 }
 
 
+/** An input or output of a component.
+ *
+ * @class
+ */
 function Port(name, eventType, isOutput) {
     this.name = name;
     this.eventType = eventType;
@@ -168,6 +216,7 @@ function Port(name, eventType, isOutput) {
         this.event = null;
     }
 }
+
 Port.prototype.connect = function(other) {
     for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i] == other) {
@@ -230,10 +279,19 @@ Port.prototype.getTerminalPosition = function(parent) {
 }
 
 
+/** Component class.
+ *
+ * @class
+ */
 function Component(name) {
     this.name = name;
     this.ports = [];
 }
+
+/** Add a port.
+ *
+ * @func
+ */
 Component.prototype.addPort = function(port) {
     if (port.owner) {
         throw new Error("Port '" + port.name + "' already has owner '" + port.owner.name + "'");
@@ -332,6 +390,7 @@ var params = {
 
     showSignal: true
 };
+
 
 function GuiControl(name) {
     Component.call(this, name);
