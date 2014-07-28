@@ -963,6 +963,21 @@ SignalRenderView.prototype.render = function() {
 
 var signalRenderView;
 
+/** The left-most view that navigates to viewing different components, renderers, etc.
+ *
+ * @class
+ * @extends View
+ */
+function NavigatorView() {
+    View.call(this, 300, -1);
+    this.div.addClass('navigator-view');
+    $('<h2 style="text-align: center">Navigator</h2>').appendTo(this.div);
+}
+
+NavigatorView.prototype = Object.create(View.prototype);
+NavigatorView.prototype.constructor = NavigatorView;
+
+var componentView;
 
 /** Component viewer.
  *
@@ -1251,6 +1266,7 @@ DatView.prototype.setSize = function(width, height) {
 var datView;
 
 function init() {
+    navigatorView = new NavigatorView();
     //mainRenderView = new MainRenderView(plotter);
     //signalRenderView = new SignalRenderView(plotter);
     componentView = new ComponentView();
@@ -1258,6 +1274,7 @@ function init() {
     //topLevelView.setCenter(mainRenderView);
     //topLevelView.setBottom(signalRenderView);
 
+    topLevelView.setLeft(navigatorView);
     topLevelView.setCenter(componentView);
 
     attributeView = new AttributeView();
