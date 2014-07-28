@@ -4,3 +4,6 @@
 [submodule "lib/jsdoc"]
 	path = lib/jsdoc
 	url = https://github.com/jsdoc3/jsdoc.git
+[submodule "lib/docstrap"]
+	path = lib/docstrap
+	url = https://github.com/terryweiss/docstrap.git
