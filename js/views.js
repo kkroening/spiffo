@@ -28,14 +28,7 @@ function AttributeView() {
     View.call(this, 300, -1);
     this.div.addClass("attribute-view");
     this.selTitle = $('<h2 style="text-align: center">Attributes</h2>').appendTo(this.div);
-    this.attributesDiv = mkdiv("attributes", "", this.div);
-    this.attributesDiv.css("background-color", "gray");
-    this.attributesDiv.css("position", "absolute");
-    this.attributesDiv.css("left", "4px");
-    this.attributesDiv.css("right", "0px");
-    this.attributesDiv.css("top", "40px");
-    this.attributesDiv.css("bottom", "4px");
-    this.attributesDiv.css("overflow-y", "auto");
+    this.attributesDiv = mkdiv("attributes", "attribute-list", this.div);
     //this.selComponentName = $("<h1></h1>").appendTo(this.attributesDiv);
     //this.selComponentName.text("foo");
 }
