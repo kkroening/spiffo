@@ -662,7 +662,7 @@ var circlez;
 function ComponentView() {
     View.call(this, -1, -1);
     this.div.addClass('component-view');
-    this.div.selectable();
+    //this.div.selectable();
     this.initialized = false;
     this.desiredPosition = undefined;
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
@@ -738,6 +738,7 @@ ComponentView.prototype.init = function() {
                 }
             }
         });
+        c.div.selectable();
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
         c.labelBox.appendTo(c.div);
     }
