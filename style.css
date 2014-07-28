@@ -30,6 +30,7 @@ div.view {
 
 .component-view {
     background-color: gray;
+    overflow: auto;
 }
 
 .tlv-left {
@@ -97,6 +98,14 @@ div.view {
     border-color: black;
     border-radius: 3px;
     margin: 10px;
+}
+
+.component .ui-selecting {
+    background-color: #feca40;
+}
+
+.component .ui-selected {
+    background-color: #f39814;
 }
 
 .component-label {
