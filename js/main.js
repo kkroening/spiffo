@@ -1022,6 +1022,8 @@ ComponentView.prototype.init = function() {
         c.div = mkdiv("component-" + c.name, "component", this.div);
         (function (c) {
             c.div.mousedown(function(event) {
+                that.zIndex++;
+                c.div.css('z-index', that.zIndex);
                 if (!event.metaKey) {
                     that.unselectAll();
                     attributeView.setComponent(c);
@@ -1067,8 +1069,6 @@ ComponentView.prototype.init = function() {
         }
         c.div.draggable({
             start: function(event, ui) {
-                that.zIndex++;
-                ui.helper.css('z-index', that.zIndex);
                 that.updateSelectedComponents();
                 for (var i = 0; i < that.selectedComponents.length; i++) {
                     var selected = that.selectedComponents[i];
