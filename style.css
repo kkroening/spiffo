@@ -10,11 +10,31 @@ body {
 }
 
 #info {
-    color: #fff;
+    color: rgb(200,200,200);
     position: absolute;
     top: 0px;
     width: 100%;
     padding: 5px;
+}
+
+.background1 {
+    background-color: rgb(22,22,22);
+}
+
+.background2 {
+    background-color: rgb(37,37,37);
+}
+
+.background3 {
+    background-color: rgb(50,50,50);
+}
+
+.background4 {
+    background-color: rgb(96,96,96);
+}
+
+.backgroundhl {
+    background-color: rgb(52,154,255);
 }
 
 #main {
@@ -22,25 +42,55 @@ body {
     height: 100%;
 }
 
-div.view {
+div.view-container {
     position: absolute;
     overflow: hidden;
+    background-color: rgb(44,44,44);
+}
+
+div.view {
+    width: 100%;
+    height: 100%;
+}
+
+.view-header {
+    text-align: left;
+    display: table-row;
+}
+
+.view-title-text {
+    color: rgb(160,160,160);
+    margin-top: 0em;
+    margin-bottom: 0em;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.view-body {
+    display: table-row;
+    background-color: rgb(37,37,37);
+    height: 100%;
+}
+
+.navigator-view {
+    display: table;
 }
 
 .navigator-list {
-    background-color: darkgray;
     overflow: scroll;
-    position: absolute;
+    position: relative;
     left: 1em;
     right: 1em;
-    top: 4em;
-    bottom: 1em;
+    top: 1em;
+}
+
+.attribute-view {
+    display: table;
 }
 
 .attribute-list {
-    background-color: darkgray;
     overflow: scroll;
-    position: absolute;
+    position: relative;
     left: 1em;
     right: 1em;
     top: 4em;
@@ -53,7 +103,6 @@ div.view {
 }
 
 .tlv-left {
-    background-color: #1a1a1a;
     border-style: none solid none none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -67,7 +116,6 @@ div.view {
 }
 
 .tlv-top {
-    background-color: #1a1a1a;
     border-style: none none solid none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -82,7 +130,6 @@ div.view {
 }
 
 .tlv-bottom {
-    background-color: #1a1a1a;
     border-style: solid none none none;
     //border-color: black;
     border-color: #2fa1d6;
@@ -96,7 +143,6 @@ div.view {
 }
 
 .tlv-right {
-    background-color: #1a1a1a;
     border-style: none none none solid;
     //border-color: black;
     border-color: #2fa1d6;

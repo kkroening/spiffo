@@ -1,17 +1,7 @@
-var Color = {
-    DARKEST: "#1a1a1a",
-    DARKER: "#421C52",
-    DARK: "#336699",
-    MEDIUM: "#676767",
-    LIGHT: "#9C8AA5",
-    LIGHTER: "#BDAEC6",
-    WHITE: "#FFFFFF"
-};
-
 function View(width, height) {
     this.width  = width;
     this.height = height;
-    this.div    = $('<div></div>');
+    this.div    = $('<div class="view"></div>');
     //this.div.attr('id', 'inner');
     this.div.css("position", "absolute");
     this.div.css("width", "100%");
@@ -27,8 +17,9 @@ View.prototype.setSize = function(width, height) {
 function AttributeView() {
     View.call(this, 300, -1);
     this.div.addClass("attribute-view");
-    this.selTitle = $('<h2 style="text-align: center">Attributes</h2>').appendTo(this.div);
-    this.attributesDiv = mkdiv("attributes", "attribute-list", this.div);
+    $('<div class="view-header"><p class="view-title-text">Attributes</p></div>').appendTo(this.div);
+    this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
+    this.attributesDiv = mkdiv("attributes", "attribute-list background2", this.viewBody);
     //this.selComponentName = $("<h1></h1>").appendTo(this.attributesDiv);
     //this.selComponentName.text("foo");
 }
@@ -47,9 +38,9 @@ AttributeView.prototype.getComponent = function() {
 AttributeView.prototype.setComponent = function(component) {
     this.component = component;
     if (component) {
-        this.selTitle.text(component.name + " Attributes");
+        //this.selTitle.text(component.name + " Attributes");
     } else {
-        this.selTitle.text("Attributes");
+        //this.selTitle.text("Attributes");
     }
 }
 
@@ -92,14 +83,19 @@ var mkdiv = function(id, cls, owner) {
     if (id != null && id !== "") {
         result.attr('id', id);
     }
-    //result.css("background-color", Color.DARKEST);
     return result;
 }
 
 function TopLevelView(container) {
     View.call(this, 0, 0);
 
+    this.div.addClass("tlv");
+
     //this.div.resize(this.doResize);
+
+    // TODO: make this configurable.
+    //this.extraLargeRightView = true;
+    this.extraLargeRightView = false;
 
     this.div.css("position", "relative");
     this.div.css("width", "100%");
@@ -108,11 +104,11 @@ function TopLevelView(container) {
     this.subViews = [];
     this.subDivs  = [];
 
-    var center = mkdiv("center", "view tlv-center", this.div);
-    var right  = mkdiv("right", "view tlv-right", this.div);
-    var bottom = mkdiv("bottom", "view tlv-bottom", this.div);
-    var left   = mkdiv("left", "view tlv-left", this.div);
-    var top    = mkdiv("top", "view tlv-top", this.div);
+    var center = mkdiv("", "view-container tlv-center background3", this.div);
+    var right  = mkdiv("", "view-container tlv-right background3", this.div);
+    var bottom = mkdiv("", "view-container tlv-bottom background3", this.div);
+    var left   = mkdiv("", "view-container tlv-left background3", this.div);
+    var top    = mkdiv("", "view-container tlv-top background3", this.div);
 
     this.subDivs[this.ViewID.TOP]    = top;
     this.subDivs[this.ViewID.RIGHT]  = right;
@@ -165,12 +161,19 @@ TopLevelView.prototype.doResize = function() {
     this.subDivs[this.ViewID.LEFT].css('right', this.leftWidth);
     this.subDivs[this.ViewID.LEFT].css("top", this.topHeight);
     this.subDivs[this.ViewID.LEFT].css("width", this.leftWidth - 1);
-    this.subDivs[this.ViewID.RIGHT].css("bottom", this.bottomHeight);
     this.subDivs[this.ViewID.RIGHT].css('left', this.width - this.rightWidth);
     this.subDivs[this.ViewID.RIGHT].css("top", this.topHeight);
     this.subDivs[this.ViewID.RIGHT].css("width", this.rightWidth - 1);
     this.subDivs[this.ViewID.TOP].css('bottom', this.height - this.topHeight);
     this.subDivs[this.ViewID.TOP].css("height", this.topHeight - 1);
+
+    if (this.extraLargeRightView) {
+        this.subDivs[this.ViewID.RIGHT].css("bottom", 0);
+        this.subDivs[this.ViewID.BOTTOM].css('right', this.rightWidth);
+    } else {
+        this.subDivs[this.ViewID.RIGHT].css("bottom", this.bottomHeight);
+        this.subDivs[this.ViewID.BOTTOM].css('right', 0);
+    }
 
     if (this.subViews[this.ViewID.TOP] != null) {
         this.subViews[this.ViewID.TOP].setSize(this.width, this.topHeight);

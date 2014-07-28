@@ -971,7 +971,9 @@ var signalRenderView;
 function NavigatorView() {
     View.call(this, 300, -1);
     this.div.addClass('navigator-view');
-    $('<h2 style="text-align: center">Navigator</h2>').appendTo(this.div);
+    $('<div class="view-header"><p class="view-title-text">Navigator</p></div>').appendTo(this.div);
+    this.viewBody = $('<div class="view-body">').appendTo(this.div);
+    this.navList = $('<div class="navigator-list background2"></div>').appendTo(this.viewBody);
 }
 
 NavigatorView.prototype = Object.create(View.prototype);
