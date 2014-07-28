@@ -104,11 +104,13 @@ div.view {
 }
 
 .component .ui-selecting {
-    background-color: #feca40;
+    background-color: white;
+    //background-color: lightgreen;
 }
 
 .component .ui-selected {
-    background-color: #f39814;
+    background-color: white;
+    //background-color: lightgreen;
 }
 
 .component-label {
@@ -128,16 +130,16 @@ div.view {
 
 .component-inputs {
     margin: 4px;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    padding: 2px;
     vertical-align: middle;
+    //background-color: #d8d8d8;
 }
 
 .component-outputs {
     margin: 4px;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    padding: 2px;
     vertical-align: middle;
+    //background-color: #d8d8d8;
 }
 
 .input-terminal {
@@ -151,6 +153,14 @@ div.view {
     float: left;
 }
 
+.input-terminal.ui-selecting {
+    background-color: #888888;
+}
+
+.input-terminal.ui-selected {
+    background-color: #888888;
+}
+
 .output-terminal {
     width: 7px;
     height: 7px;
@@ -161,6 +171,15 @@ div.view {
     border-radius: 3px;
     float: right;
 }
+
+.output-terminal.ui-selecting {
+    background-color: #888888;
+}
+
+.output-terminal.ui-selected {
+    background-color: #888888;
+}
+
 
 .input-port-label {
     font-size: 10px;

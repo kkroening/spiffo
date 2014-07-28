@@ -971,8 +971,15 @@ var signalRenderView;
  */
 function ComponentView() {
     View.call(this, -1, -1);
+    var that = this;
     this.div.addClass('component-view');
-    //this.div.selectable();
+    this.div.selectable({
+        selected: function(event, ui) {
+            if ($(ui.selected).hasClass('component')) {
+                //console.log(ui.selected.component.name + " selected");
+            }
+        }
+    });
     this.initialized = false;
     this.zIndex = 0;
     $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
@@ -1008,7 +1015,18 @@ ComponentView.prototype.init = function() {
 
     for (var i = 0; i < components.length; i++) {
         var c = components[i];
+        var that = this;
         c.div = mkdiv("component-" + c.name, "component", this.div);
+        (function (c) {
+            c.div.mousedown(function(event) {
+                if (!event.metaKey) {
+                    that.unselectAll();
+                } else {
+                    // TODO: update attribute view.
+                }
+                $('*', c.div).addClass('ui-selected');
+            });
+        })(c);
         var table = $("<table></table>");
         table.appendTo(c.div);
         var tr = $("<tr></tr>");
@@ -1031,8 +1049,8 @@ ComponentView.prototype.init = function() {
                     c.outputPortsDiv = mkdiv("outputs-" + c.name, "component-outputs", td3);
                 }
                 p.div = mkdiv("component-" + c.name + "-port-" + p.name, "output-port", c.outputPortsDiv);
-                p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
                 p.div.label = $("<h5 class=\"output-port-label\">" + p.name + "</h5>");
+                p.div.terminal = mkdiv("component-" + c.name + "-port-" + p.name + "-terminal", "output-terminal", p.div);
             } else {
                 if (c.inputPortsDiv == null) {
                     c.inputPortsDiv = mkdiv("inputs-" + c.name, "component-inputs", td1);
@@ -1043,7 +1061,6 @@ ComponentView.prototype.init = function() {
             }
             p.div.label.appendTo(p.div);
         }
-        var that = this;
         c.div.draggable({
             start: function(event, ui) {
                 that.zIndex++;
@@ -1079,7 +1096,7 @@ ComponentView.prototype.init = function() {
                 }
 	    }
         });
-        c.div.selectable();
+        //c.div.selectable();
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
         c.labelBox.appendTo(td2);
     }
@@ -1123,6 +1140,11 @@ ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
         inputPort.wirePath = this.d3svg.append("path").classed("wire", true);
     }
     inputPort.wirePath.attr("d", "M" + pos1.x + "," + pos1.y + " C" + pos1b.x + "," + pos1b.y + " " + pos2b.x + "," + pos2b.y + " " + pos2.x + "," + pos2.y);
+}
+
+/** @func */
+ComponentView.prototype.unselectAll = function() {
+    $('.ui-selected', this.div).removeClass('ui-selected');
 }
 
 var componentView;
