@@ -973,15 +973,15 @@ function ComponentView() {
     View.call(this, -1, -1);
     var that = this;
     this.div.addClass('component-view');
+    /*
     this.div.selectable({
-        /*
         selected: function(event, ui) {
             if ($(ui.selected).hasClass('component')) {
                 //console.log(ui.selected.component.name + " selected");
             }
         }
-        */
     });
+    */
     this.initialized = false;
     this.zIndex = 0;
     this.selectedComponents = [];
@@ -1023,11 +1023,10 @@ ComponentView.prototype.init = function() {
         (function (c) {
             c.div.mousedown(function(event) {
                 if (!event.metaKey) {
-                    that.unselectAll();
+                    //that.unselectAll();
                 } else {
                     // TODO: update attribute view.
                 }
-                c.div.addClass('ui-selected');
                 $('*', c.div).addClass('ui-selected');
             });
         })(c);
@@ -1072,51 +1071,38 @@ ComponentView.prototype.init = function() {
                 that.updateSelectedComponents();
                 for (var i = 0; i < that.selectedComponents.length; i++) {
                     var selected = that.selectedComponents[i];
-                    selected.originalOffset = selected.div.offset();
+                    selected.originalLocation = selected.div.offset();
                 }
             },
             drag: function(event, ui) {
-                var dragComponent = ui.helper.get(0).component;
-                var deltaX = ui.position.left - ui.originalPosition.left;
-                var deltaY = ui.position.top - ui.originalPosition.top;
-                for (var j = 0; j < that.selectedComponents.length; j++) {
-                    var component = that.selectedComponents[j];
-                    //if (component != dragComponent) {
-                        component.div.offset({ left: component.originalOffset.left + deltaX, top: component.originalOffset.top + deltaY });
-                    //}
-                    for (var k = 0; k < component.ports.length; k++) {
-                        var p = component.ports[k];
-                        if (p.isOutput) {
-                            for (var m = 0; m < p.connections.length; m++) {
-                                var p2 = p.connections[m];
-                                that.updateWiring(p2, p);
-                            }
-                        } else if (p.connections.length != 0) {
-                            that.updateWiring(p, p.connections[0]);
+                var component = ui.helper.get(0).component;
+                console.log(event);
+                console.log(ui);
+                var deltaX = 0; // FIXME
+                for (var j = 0; j < component.ports.length; j++) {
+                    var p = component.ports[j];
+                    if (p.isOutput) {
+                        for (var k = 0; k < p.connections.length; k++) {
+                            var p2 = p.connections[k];
+                            that.updateWiring(p2, p);
                         }
+                    } else if (p.connections.length != 0) {
+                        that.updateWiring(p, p.connections[0]);
                     }
                 }
             },
 	    stop: function(event, ui) {
-                // FIXME: copy/pasta from above 'drag' method; move to common place.
-                var dragComponent = ui.helper.get(0).component;
-                var deltaX = ui.position.left - ui.originalPosition.left;
-                var deltaY = ui.position.top - ui.originalPosition.top;
-                for (var j = 0; j < that.selectedComponents.length; j++) {
-                    var component = that.selectedComponents[j];
-                    if (component != dragComponent) {
-                        component.div.offset({ left: component.originalOffset.left + deltaX, top: component.originalOffset.top + deltaY });
-                    }
-                    for (var k = 0; k < component.ports.length; k++) {
-                        var p = component.ports[k];
-                        if (p.isOutput) {
-                            for (var m = 0; m < p.connections.length; m++) {
-                                var p2 = p.connections[m];
-                                that.updateWiring(p2, p);
-                            }
-                        } else if (p.connections.length != 0) {
-                            that.updateWiring(p, p.connections[0]);
+		//this.drag(event, ui);
+                var component = ui.helper.get(0).component;
+                for (var j = 0; j < component.ports.length; j++) {
+                    var p = component.ports[j];
+                    if (p.isOutput) {
+                        for (var k = 0; k < p.connections.length; k++) {
+                            var p2 = p.connections[k];
+                            that.updateWiring(p2, p);
                         }
+                    } else if (p.connections.length != 0) {
+                        that.updateWiring(p, p.connections[0]);
                     }
                 }
 	    }
@@ -1161,18 +1147,10 @@ ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
     var pos1b = { x: pos1.x + 60, y: pos1.y };
     var pos2 = inputPort.getTerminalPosition(this.div);
     var pos2b = { x: pos2.x - 60, y: pos2.y };
-    var pos1x = Math.round(pos1.x);
-    var pos1y = Math.round(pos1.y);
-    var pos1bx = Math.round(pos1b.x);
-    var pos1by = Math.round(pos1b.y);
-    var pos2x = Math.round(pos2.x);
-    var pos2y = Math.round(pos2.y);
-    var pos2bx = Math.round(pos2b.x);
-    var pos2by = Math.round(pos2b.y);
     if (inputPort.wirePath == null) {
         inputPort.wirePath = this.d3svg.append("path").classed("wire", true);
     }
-    inputPort.wirePath.attr("d", "M" + pos1x + "," + pos1y + " C" + pos1bx + "," + pos1by + " " + pos2bx + "," + pos2by + " " + pos2x + "," + pos2y);
+    inputPort.wirePath.attr("d", "M" + pos1.x + "," + pos1.y + " C" + pos1b.x + "," + pos1b.y + " " + pos2b.x + "," + pos2b.y + " " + pos2.x + "," + pos2.y);
 }
 
 /** Update 'selectedComponents' field.
@@ -1180,12 +1158,12 @@ ComponentView.prototype.updateWiring = function(inputPort, outputPort) {
  * @func
  */
 ComponentView.prototype.updateSelectedComponents = function () {
-    this.selectedComponents = [];
-    var that = this;
-    $('.ui-selected', this.div).each(function() {
+    this.selected = [];
+    $('.ui-selected', that.div).each(function() {
         if ($(this).hasClass('component')) {
             var component = $(this).get(0).component;
-            that.selectedComponents.push(component);
+            console.log(component.name + " selected");
+            that.selected.push(component);
         }
     });
 }
