@@ -236,15 +236,15 @@ Port.prototype.connect = function(other) {
         if (other.isOutput) {
             throw new Error("Can't connect output port '" + this.name + "' to output port '" + other.name + "'");
         } else if (this.connections.length != 0) {
-	    throw new Error("Can't connect output port '" + this.name + "' to input port '" + other.name + "' because the input port is already connected to '" + other.connections[0].name + "'");
-	}
+            throw new Error("Can't connect output port '" + this.name + "' to input port '" + other.name + "' because the input port is already connected to '" + other.connections[0].name + "'");
+        }
         other.event = this.event;
     } else {
         if (other.isInput) {
             throw new Error("Can't connect input port '" + this.name + "' to input port '" + other.name + "'");
         } else if (other.connections.length != 0) {
-	    throw new Error("Can't connect input port '" + this.name + "' to output port '" + other.name + "' because the input port is already connected to '" + this.connections[0].name + "'");
-	}
+            throw new Error("Can't connect input port '" + this.name + "' to output port '" + other.name + "' because the input port is already connected to '" + this.connections[0].name + "'");
+        }
         this.event = other.event;
     }
     this.connections.push(other);
@@ -260,9 +260,9 @@ Port.prototype.connect = function(other) {
  */
 Port.prototype.disconnect = function(other) {
     if (!other) {
-	throw new Error("Attempted to disconnect invalid/undefined port from port '" + this.name + "'");
+        throw new Error("Attempted to disconnect invalid/undefined port from port '" + this.name + "'");
     } else if (this.connections.length == 0) {
-	return;
+        return;
     }
     for (var i = 0; i < this.connections.length; i++) {
         if (this.connections[i] == other) {
@@ -271,7 +271,7 @@ Port.prototype.disconnect = function(other) {
             if (!this.isOutput) {
                 this.event = null;
             }
-	    return;
+            return;
         }
     }
     throw new Error("Can't disconnect port '" + other.name + "' from port '" + this.name + "' because port '" + other.name + "' is not connected");
@@ -975,12 +975,19 @@ function NavigatorView() {
     this.viewBodyContainer = $('<div class="pane-body-row">').appendTo(this.div);
     this.viewBody = $('<div class="pane-body">').appendTo(this.viewBodyContainer);
     this.navList = $('<div class="navigator-list background2"></div>').appendTo(this.viewBody);
+
     this.navList.jstree({
         core: {
+            check_callback: true,
+            themes: {
+                icons: false
+            },
             animation: false,
+            data: [ { id: 'root_node', text:  'rootz' } ]
+        /*
             data: [
                 {
-                    text: 'Simple root node'
+                    text: 'Simple root node',
                 },
                 {
                     text: 'Root node 2',
@@ -991,7 +998,10 @@ function NavigatorView() {
                     children: [
                         { text : 'Child 1' },
                         'Child 2'
-                    ]
+                    ],
+                    a_attr: {
+                        barf: 'hi'
+                    }
                 },
                 {
                     text: 'Root node 3',
@@ -1004,8 +1014,35 @@ function NavigatorView() {
                         'Child 2'
                     ]
                 }
-    ]
-         }
+            ]
+            */
+        }
+    });
+
+    //
+    // Note: need a second call to jstree() to get a reference to the tree
+    // object, since the amazing jstree API doesn't return a reference the
+    // first time.
+    //
+    this.navListTree = this.navList.jstree();
+
+    var root = this.navListTree.create_node("#", { id: 'barf', text: "root" });
+    console.log(root);
+    console.log(this.navListTree.get_node('#barf'));
+
+
+    this.navList.on('changed.jstree', function (e, data) {
+        /*
+        var i, j, r = [];
+        for(i = 0, j = data.selected.length; i < j; i++) {
+            console.log(data.instance.get_node(data.selected[i]));
+            //console.log(data.instance.get_node(data.selected[i]).text);
+        }
+        */
+    });
+    this.navList.bind("dblclick.jstree", function (event) {
+        //var thing = $(event.target);
+        //console.log(thing);
     });
 }
 
@@ -1123,7 +1160,7 @@ ComponentView.prototype.setSize = function(width, height) {
     if (!this.initialized) {
         this.init();
     } else {
-	this.updateAllWiring();
+        this.updateAllWiring();
     }
 }
 
@@ -1166,10 +1203,10 @@ ComponentView.prototype.init = function() {
         td1.appendTo(tr);
         td2.appendTo(tr);
         td3.appendTo(tr);
-	if (c.desiredPosition) {
-	    c.div.css("position", "absolute");
-	    c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
-	}
+        if (c.desiredPosition) {
+            c.div.css("position", "absolute");
+            c.div.offset({ left: c.desiredPosition.x + componentViewOffset.left, top: c.desiredPosition.y + componentViewOffset.top });
+        }
         c.div.get(0).component = c;
         for (var j = 0; j < c.ports.length; j++) {
             var p = c.ports[j];
@@ -1220,7 +1257,7 @@ ComponentView.prototype.init = function() {
                     }
                 }
             },
-	    stop: function(event, ui) {
+            stop: function(event, ui) {
                 // FIXME: copy/pasta from above 'drag' method; move to common place.
                 var dragComponent = ui.helper.get(0).component;
                 var deltaX = ui.position.left - ui.originalPosition.left;
@@ -1242,7 +1279,7 @@ ComponentView.prototype.init = function() {
                         }
                     }
                 }
-	    }
+            }
         });
         //c.div.selectable();
         c.labelBox = $("<h4 class=\"component-label\">" + c.name + "</h4>");
@@ -1392,6 +1429,14 @@ function init() {
     datView = new DatView(300, -1);
     //topLevelView.setRight(datView);
     topLevelView.setRight(attributeView);
+
+    /*
+    for (var i = 0; i < components.length; i++) {
+        var component = components[i];
+        console.log(component.name);
+        component.navEntry = navigatorView.navListTree.create_node(null, { text: component.name });
+    }
+    */
 }
 
 var renderMode = false;
