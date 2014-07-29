@@ -718,7 +718,7 @@ Plotter.prototype.run = function(deltaTime) {
  *
  * TODO: replace with more general Container type.
  *
- * @var {array} 
+ * @var {array}
  */
 var components = [];
 
@@ -871,7 +871,7 @@ function runScheduler(deltaTime) {
 /** A THREE.js-based {@link View} that renders on behalf of a {@link Plotter}.
  *
  * @class
- * @extends View 
+ * @extends View
  * @param {Plotter} plotter
  */
 function MainRenderView(plotter) {
@@ -975,6 +975,38 @@ function NavigatorView() {
     this.viewBodyContainer = $('<div class="pane-body-row">').appendTo(this.div);
     this.viewBody = $('<div class="pane-body">').appendTo(this.viewBodyContainer);
     this.navList = $('<div class="navigator-list background2"></div>').appendTo(this.viewBody);
+    this.navList.jstree({
+        core: {
+            animation: false,
+            data: [
+                {
+                    text: 'Simple root node'
+                },
+                {
+                    text: 'Root node 2',
+                    state: {
+                        opened: true,
+                        selected: false
+                    },
+                    children: [
+                        { text : 'Child 1' },
+                        'Child 2'
+                    ]
+                },
+                {
+                    text: 'Root node 3',
+                    state: {
+                        opened: true,
+                        selected: false
+                    },
+                    children: [
+                        { text : 'Child 1' },
+                        'Child 2'
+                    ]
+                }
+    ]
+         }
+    });
 }
 
 NavigatorView.prototype = Object.create(View.prototype);

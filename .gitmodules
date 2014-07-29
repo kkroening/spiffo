@@ -7,3 +7,6 @@
 [submodule "lib/docstrap"]
 	path = lib/docstrap
 	url = https://github.com/terryweiss/docstrap.git
+[submodule "lib/jstree"]
+	path = lib/jstree
+	url = https://github.com/vakata/jstree.git
