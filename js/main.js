@@ -983,7 +983,7 @@ NavigatorView.prototype.constructor = NavigatorView;
 function AttributeView() {
     View.call(this, 300, -1);
     this.div.addClass("attribute-view");
-    $('<div class="view-header"><p class="view-title-text">Attributes</p></div>').appendTo(this.div);
+    this.viewHeader = $('<div class="view-header"><p class="view-title-text">Attributes</p></div>').appendTo(this.div);
     this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
     this.attributesDiv = mkdiv("attributes", "attribute-list background2", this.viewBody);
     //this.selComponentName = $("<h1></h1>").appendTo(this.attributesDiv);
@@ -1009,6 +1009,49 @@ AttributeView.prototype.setComponent = function(component) {
         //this.selTitle.text("Attributes");
     }
 }
+
+
+/** Tab-based view.
+ *
+ * @class
+ * @extends View
+ */
+function TabView() {
+    View.call(this, -1, -1);
+    this.div.addClass("tab-view");
+    this.tabs = [];
+    this.viewHeaderContainer = $('<div class="view-header"></div>').appendTo(this.div);
+    this.viewHeader = $('<div class="tab-view-header"></div>"').appendTo(this.viewHeaderContainer);
+    this.tab1 = $('<p class="tab-title-text">Look, a tab!</p>').appendTo(this.viewHeader);
+    this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
+    this.currentView = componentView;
+    this.currentView.div.appendTo(this.viewBody);
+}
+
+TabView.prototype = Object.create(View.prototype);
+TabView.prototype.constructor = ComponentView;
+
+/** Implements {@link View}.setSize().
+ *
+ * @func
+ */
+TabView.prototype.setSize = function(width, height) {
+    View.prototype.setSize.call(this, width, height);
+    var size = this.viewBody.size();
+    this.currentView.setSize(size.left, size.top);
+}
+
+
+/** Adds a new tab.
+ *
+ * @func
+ * @param {View} view
+ */
+TabView.prototype.addTab = function(view) {
+
+}
+
+var tabView;
 
 
 /** Component viewer.
@@ -1302,12 +1345,14 @@ function init() {
     //mainRenderView = new MainRenderView(plotter);
     //signalRenderView = new SignalRenderView(plotter);
     componentView = new ComponentView();
+    tabView = new TabView();
 
     //topLevelView.setCenter(mainRenderView);
     //topLevelView.setBottom(signalRenderView);
 
     topLevelView.setLeft(navigatorView);
-    topLevelView.setCenter(componentView);
+    //topLevelView.setCenter(componentView);
+    topLevelView.setCenter(tabView);
 
     attributeView = new AttributeView();
 

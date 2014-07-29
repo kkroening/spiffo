@@ -64,8 +64,8 @@ function TopLevelView(container) {
     //this.div.resize(this.doResize);
 
     // TODO: make this configurable.
-    //this.extraLargeRightView = true;
-    this.extraLargeRightView = false;
+    this.extraLargeRightView = true;
+    //this.extraLargeRightView = false;
 
     this.div.css("position", "relative");
     this.div.css("width", "100%");
