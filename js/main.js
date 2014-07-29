@@ -975,75 +975,6 @@ function NavigatorView() {
     this.viewBodyContainer = $('<div class="pane-body-row">').appendTo(this.div);
     this.viewBody = $('<div class="pane-body">').appendTo(this.viewBodyContainer);
     this.navList = $('<div class="navigator-list background2"></div>').appendTo(this.viewBody);
-
-    this.navList.jstree({
-        core: {
-            check_callback: true,
-            themes: {
-                icons: false
-            },
-            animation: false,
-            data: [ { id: 'root_node', text:  'rootz' } ]
-        /*
-            data: [
-                {
-                    text: 'Simple root node',
-                },
-                {
-                    text: 'Root node 2',
-                    state: {
-                        opened: true,
-                        selected: false
-                    },
-                    children: [
-                        { text : 'Child 1' },
-                        'Child 2'
-                    ],
-                    a_attr: {
-                        barf: 'hi'
-                    }
-                },
-                {
-                    text: 'Root node 3',
-                    state: {
-                        opened: true,
-                        selected: false
-                    },
-                    children: [
-                        { text : 'Child 1' },
-                        'Child 2'
-                    ]
-                }
-            ]
-            */
-        }
-    });
-
-    //
-    // Note: need a second call to jstree() to get a reference to the tree
-    // object, since the amazing jstree API doesn't return a reference the
-    // first time.
-    //
-    this.navListTree = this.navList.jstree();
-
-    var root = this.navListTree.create_node("#", { id: 'barf', text: "root" });
-    console.log(root);
-    console.log(this.navListTree.get_node('#barf'));
-
-
-    this.navList.on('changed.jstree', function (e, data) {
-        /*
-        var i, j, r = [];
-        for(i = 0, j = data.selected.length; i < j; i++) {
-            console.log(data.instance.get_node(data.selected[i]));
-            //console.log(data.instance.get_node(data.selected[i]).text);
-        }
-        */
-    });
-    this.navList.bind("dblclick.jstree", function (event) {
-        //var thing = $(event.target);
-        //console.log(thing);
-    });
 }
 
 NavigatorView.prototype = Object.create(View.prototype);
@@ -1429,14 +1360,6 @@ function init() {
     datView = new DatView(300, -1);
     //topLevelView.setRight(datView);
     topLevelView.setRight(attributeView);
-
-    /*
-    for (var i = 0; i < components.length; i++) {
-        var component = components[i];
-        console.log(component.name);
-        component.navEntry = navigatorView.navListTree.create_node(null, { text: component.name });
-    }
-    */
 }
 
 var renderMode = false;
