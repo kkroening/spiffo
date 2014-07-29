@@ -103,17 +103,31 @@ div.view {
     border-color: #2fa1d6;
 }
 
-.tab-title-text {
+.tab-title {
     background-color: #2fa1d6;
+    display: inline-block;
+    width: auto;
+    height: 100%;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+.tab-title-text {
     text-align: left;
     width: 10em;
     color: white;
-    margin-top: 0em;
-    margin-bottom: 0em;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin: 0em;
 }
 
+.tab-close-button {
+    width: 2em;
+    color: #ccc;
+    padding-left: 1em;
+    padding-right: 0.5em;
+    margin: 0em;
+}
 
 .component-view {
     background-color: gray;

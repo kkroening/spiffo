@@ -1024,7 +1024,7 @@ function TabView() {
     this.tabs = [];
     this.viewHeaderContainer = $('<div class="pane-header-row"></div>').appendTo(this.div);
     this.viewHeader = $('<div class="tab-view-header"></div>"').appendTo(this.viewHeaderContainer);
-    this.tab1 = $('<p class="tab-title-text">Look, a tab!</p>').appendTo(this.viewHeader);
+    this.tab1 = $('<div class="tab-title"><span class="tab-title-text">Component View</span></div>').appendTo(this.viewHeader);
     this.viewBody = $('<div class="pane-body-row"></div>').appendTo(this.div);
     this.currentView = componentView;
     this.currentView.div.appendTo(this.viewBody);
@@ -1077,7 +1077,6 @@ function ComponentView() {
     this.initialized = false;
     this.zIndex = 0;
     this.selectedComponents = [];
-    $('<h2 style="text-align: center">' + "Component view" + '</h2>').appendTo(this.div);
 }
 
 ComponentView.prototype = Object.create(View.prototype);
