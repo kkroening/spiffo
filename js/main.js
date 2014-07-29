@@ -971,8 +971,9 @@ var signalRenderView;
 function NavigatorView() {
     View.call(this, 300, -1);
     this.div.addClass('navigator-view');
-    $('<div class="view-header"><p class="view-title-text">Navigator</p></div>').appendTo(this.div);
-    this.viewBody = $('<div class="view-body">').appendTo(this.div);
+    $('<div class="view-header-row"><p class="pane-title-text">Navigator</p></div>').appendTo(this.div);
+    this.viewBodyContainer = $('<div class="pane-body-row">').appendTo(this.div);
+    this.viewBody = $('<div class="pane-body">').appendTo(this.viewBodyContainer);
     this.navList = $('<div class="navigator-list background2"></div>').appendTo(this.viewBody);
 }
 
@@ -983,8 +984,9 @@ NavigatorView.prototype.constructor = NavigatorView;
 function AttributeView() {
     View.call(this, 300, -1);
     this.div.addClass("attribute-view");
-    this.viewHeader = $('<div class="view-header"><p class="view-title-text">Attributes</p></div>').appendTo(this.div);
-    this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
+    this.viewHeader = $('<div class="view-header-row"><p class="pane-title-text">Attributes</p></div>').appendTo(this.div);
+    this.viewBodyContainer = $('<div class="pane-body-row"></div>').appendTo(this.div);
+    this.viewBody = $('<div class="pane-body"></div>').appendTo(this.viewBodyContainer);
     this.attributesDiv = mkdiv("attributes", "attribute-list background2", this.viewBody);
     //this.selComponentName = $("<h1></h1>").appendTo(this.attributesDiv);
     //this.selComponentName.text("foo");
@@ -1020,16 +1022,16 @@ function TabView() {
     View.call(this, -1, -1);
     this.div.addClass("tab-view");
     this.tabs = [];
-    this.viewHeaderContainer = $('<div class="view-header"></div>').appendTo(this.div);
+    this.viewHeaderContainer = $('<div class="pane-header-row"></div>').appendTo(this.div);
     this.viewHeader = $('<div class="tab-view-header"></div>"').appendTo(this.viewHeaderContainer);
     this.tab1 = $('<p class="tab-title-text">Look, a tab!</p>').appendTo(this.viewHeader);
-    this.viewBody = $('<div class="view-body"></div>').appendTo(this.div);
+    this.viewBody = $('<div class="pane-body-row"></div>').appendTo(this.div);
     this.currentView = componentView;
     this.currentView.div.appendTo(this.viewBody);
 }
 
 TabView.prototype = Object.create(View.prototype);
-TabView.prototype.constructor = ComponentView;
+TabView.prototype.constructor = TabView;
 
 /** Implements {@link View}.setSize().
  *
