@@ -19,7 +19,7 @@ var params = {
     //
     a1: 500,
     a2: 220,
-    a3: 0,
+    a3: 80,
 
     //
     //  - c1,c2 - decay; values closer to 0 cause the sinusoid(s) to more quickly
@@ -33,21 +33,21 @@ var params = {
     //  - w1,w2 - frequency: higher absolute values cause the sinusoid(s) to vary
     //    more quickly; values can be positive or negative.
     //
-    w1: 3,
+    w1: 10,
     w2: -4.25,
     w3: 1,
 
     //
     //  - dw1,dw2 - rate of change for frequency parameters w1,w2.
     //
-    dw1: 0.8,
+    dw1: 2.2,
     dw2: -0.069,
     dw3: -1,
 
     //
     //  - max_freq - maximum frequency.
     //
-    max_freq: 12,
+    max_freq: 60,
 
     //
     //  - p1,p2 - phase.
@@ -83,7 +83,7 @@ var params = {
     //  - resolution - samples per cycle: higher values correspond to smoother
     //    lines at the expense of CPU time.
     //
-    resolution: 300,
+    resolution: 750,
 
     showSignal: false
 };
